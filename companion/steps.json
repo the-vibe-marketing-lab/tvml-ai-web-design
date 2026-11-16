@@ -81,7 +81,7 @@
      "page_title": "Log In To GitHub Through Claude Code",
      "minutes": 10,
      "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=1a4d4e23e2cd4e7a9e1b7bd241d7ed35",
-     "idea": "Connect Claude Code to your GitHub account so it can push your work and pull updates for you. Creating the project itself happens through MarketingOS, not in this lesson.",
+     "idea": "Connect Claude Code to your GitHub account so it can push your work and pull updates for you. You create the project itself in MarketingOS.",
      "steps": [
       {
        "id": "1.3-a",
@@ -117,7 +117,7 @@
      "page_title": "Connect Cloudflare To Claude Code",
      "minutes": 10,
      "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=f37f211495b34fb2afbc36f23489bf56",
-     "idea": "Give Claude Code a scoped Cloudflare API token once, saved in your site's .env, so it can run Cloudflare commands for you. Use a token for this project, not your account's Global API Key.",
+     "idea": "Give Claude Code a scoped Cloudflare API token once, saved in your site's .env, so it can run Cloudflare commands for you. Make a token just for this project and leave your account's Global API Key alone.",
      "steps": [
       {
        "id": "1.4-a",
@@ -305,7 +305,7 @@
       },
       {
        "id": "2.1-c",
-       "text": "Plan the sitemap around one rule: one page, one intent.",
+       "text": "Give every page in the sitemap one search intent.",
        "prompt": null,
        "check": null
       },
@@ -385,7 +385,7 @@
      "page_title": "Wireframe To Live Build: Turn Your Site Plan Into Real Pages",
      "minutes": 20,
      "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=c7f0f6b24d1c46359e1b1bbd618c213a",
-     "idea": "Each page starts as a plain list of sections, and Claude builds that list straight into EmDash with your design system. You judge the design in the browser, not in a mockup.",
+     "idea": "Each page starts as a plain list of sections, and Claude builds that list straight into EmDash with your design system. You judge the design in the browser, on the real pages.",
      "steps": [
       {
        "id": "3.2-a",
@@ -607,7 +607,7 @@
      "page_title": "The SEO Checklist For Your AI-Built Website",
      "minutes": 15,
      "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=1e796823004445c6aa8c989470fa4355",
-     "idea": "SEO goes in while you build, not after launch. EmDash covers about half the checklist out of the box, and you check the rest page by page and site-wide.",
+     "idea": "SEO goes in while you build. EmDash covers about half the checklist out of the box, and you check the rest page by page and site-wide.",
      "steps": [
       {
        "id": "4.1-a",

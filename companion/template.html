@@ -31,14 +31,14 @@
 }
 @media (prefers-color-scheme: light) {
   :root:not([data-theme="dark"]) {
-    --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #6b625a; --subtle: #6b625a;
+    --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #4f4741; --subtle: #5a524b;
     --ember: #c96442; --ember-text: #80361c; --ember-soft: #fff4f1; --on-ember: #0d0b0a;
     --line: #d8cfc2; --line-strong: #8a7f74; --focus: #a44a2c; --ok: #185e38; --ok-soft: #f0faf3;
     color-scheme: light;
   }
 }
 :root[data-theme="light"] {
-  --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #6b625a; --subtle: #6b625a;
+  --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #4f4741; --subtle: #5a524b;
   --ember: #c96442; --ember-text: #80361c; --ember-soft: #fff4f1; --on-ember: #0d0b0a;
   --line: #d8cfc2; --line-strong: #8a7f74; --focus: #a44a2c; --ok: #185e38; --ok-soft: #f0faf3;
   color-scheme: light;
@@ -71,11 +71,10 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .save[data-state="account"] { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
 
 /* shell */
-.shell { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 40px; max-width: 1200px; margin: 0 auto; padding-block: 32px 80px;
+.shell { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 48px; max-width: 1200px; margin: 0 auto; padding-block: 32px 80px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .route { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); align-self: start; max-height: calc(100vh - 100px); overflow: auto; }
-.route h2 { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--subtle); font-family: var(--font-body); font-weight: 600; margin: 20px 0 8px; }
-.route h2:first-child { margin-top: 0; }
+.route .group { font-size: 0.82rem; color: var(--muted); font-weight: 600; margin: 20px 0 6px; padding-left: 10px; }
 .route ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; position: relative; }
 .route a { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
   text-decoration: none; color: var(--body); font-size: 0.92rem; }
@@ -86,9 +85,9 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .route a[data-state="done"] .mark { border-color: var(--ember); background: var(--ember); color: var(--on-ember); }
 .route a[data-state="ahead"] { color: var(--subtle); }
 .route .count { font-size: 0.75rem; color: var(--subtle); font-variant-numeric: tabular-nums; }
-.route .label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.route .label { min-width: 0; line-height: 1.35; }
 .route-extra { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 0.85rem; }
-.route .route-extra a { display: block; padding: 2px 10px; color: var(--ember-text); text-decoration: underline; }
+.route .route-extra a { display: inline-block; justify-self: start; padding: 0; margin-left: 10px; color: var(--ember-text); }
 .route .route-extra a:hover { background: none; }
 
 /* page */
@@ -108,7 +107,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .lesson-head { display: grid; gap: 6px; }
 .lesson-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 0.85rem; color: var(--muted); }
 .lesson-num { font-family: var(--font-mono); color: var(--ember-text); font-size: 0.85rem; }
-.lesson h2 { font-size: 1.55rem; font-weight: 700; }
+.lesson h2, .page h2.section { font-size: 1.5rem; font-weight: 700; }
 .tag { border: 1px solid var(--line); border-radius: 99px; padding: 1px 9px; font-size: 0.75rem; color: var(--muted); }
 .idea { margin: 0; max-width: 62ch; }
 .watch { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
@@ -130,7 +129,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .step-check b { color: var(--body); font-weight: 600; }
 
 .prompt { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; min-width: 0; }
-.prompt-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 12px; border-bottom: 1px solid var(--line); font-size: 0.75rem; color: var(--subtle); letter-spacing: 0.06em; text-transform: uppercase; }
+.prompt-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 12px; border-bottom: 1px solid var(--line); font-size: 0.8rem; color: var(--muted); font-weight: 500; }
 .prompt pre { margin: 0; padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.55; color: var(--heading); white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; }
 .prompt.collapsed pre { max-height: 96px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
 .prompt-actions { display: flex; gap: 6px; }
@@ -140,12 +139,13 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .btn-primary:hover { filter: brightness(1.08); }
 .btn-ghost { background: transparent; color: var(--heading); border-color: var(--line-strong); }
 .btn-ghost:hover { border-color: var(--heading); }
-.btn-small { font-size: 0.75rem; padding: 4px 10px; min-height: 30px; border-radius: 6px; font-weight: 600; background: transparent; color: var(--body); border: 1px solid var(--line-strong); cursor: pointer; font-family: var(--font-body); }
+.btn-small { font-size: 0.78rem; padding: 4px 12px; min-height: 32px; border-radius: 99px; font-weight: 600; background: transparent; color: var(--body); border: 1px solid var(--line-strong); cursor: pointer; font-family: var(--font-body); }
 .btn-small:hover { color: var(--heading); border-color: var(--heading); }
-.btn-link { background: none; border: 0; color: var(--subtle); font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; padding: 0; text-align: left; }
+.btn-link { background: none; border: 0; color: var(--body); font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; padding: 0; text-align: left; }
 
-.done-when { display: flex; gap: 12px; align-items: flex-start; border-left: 3px solid var(--line-strong); padding: 4px 0 4px 14px; color: var(--body); font-size: 0.95rem; }
-.done-when.met { border-left-color: var(--ok); }
+.done-when { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 14px; align-items: start; color: var(--body); font-size: 0.95rem; }
+.done-when > span:first-child { text-align: center; color: var(--line-strong); font-size: 1.1rem; line-height: 1.4; }
+.done-when.met > span:first-child { color: var(--ok); }
 .done-when strong { color: var(--heading); font-weight: 600; }
 
 .next { margin-top: 32px; display: grid; gap: 12px; }
@@ -164,19 +164,38 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .route-map-legend span { border-top: 1px solid var(--line); padding-top: 4px; }
 .start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding-block: 28px; }
 .start-card { border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
-.start-card h3 { font-size: 1.1rem; }
+.start-card h2 { font-size: 1.5rem; font-weight: 700; }
 .start-card p { margin: 0; font-size: 0.93rem; }
 .cmd { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 6px 6px 10px; background: var(--panel); min-width: 0; }
 .cmd code { background: none; padding: 0; overflow-x: auto; white-space: nowrap; flex: 1; min-width: 0; }
 .how { padding-top: 8px; display: grid; gap: 10px; }
-.how ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 62ch; }
+.how ol { margin: 0; padding: 0; list-style: none; counter-reset: how; display: grid; gap: 10px; max-width: 62ch; }
+.how li { counter-increment: how; display: grid; grid-template-columns: 1.6em minmax(0, 1fr); }
+.how li::before { content: counter(how) "."; color: var(--ember-text); font-weight: 600; font-variant-numeric: tabular-nums; }
 
-.footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.82rem; color: var(--subtle); }
+.footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.85rem; color: var(--body); }
 .confirm { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
   background: var(--heading); color: var(--bg); padding: 10px 16px; border-radius: 99px; font-size: 0.88rem; font-weight: 500; transition: all 220ms var(--ease); z-index: 20; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* taste 2.5 motion layer: buttons step and press, underlines draw, headers enter once */
+.skip-link { position: absolute; left: max(16px, env(safe-area-inset-left, 0px)); top: -60px; z-index: 30; background: var(--ember); color: var(--on-ember); padding: 8px 14px; border-radius: 99px; font-weight: 600; text-decoration: none; }
+.skip-link:focus { top: 8px; }
+.btn, .btn-small, .tick { transition: transform 150ms var(--ease), filter 150ms var(--ease), border-color 150ms var(--ease); }
+.btn:hover, .btn-small:hover { transform: translateY(-1px); }
+.btn:active, .btn-small:active, .tick:active { transform: scale(0.97); }
+.page a:not(.btn), .route-extra a { text-decoration: none; background-image: linear-gradient(currentColor, currentColor); background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat; transition: background-size 220ms var(--ease); }
+.page a:not(.btn):hover, .route-extra a:hover { background-size: 100% 2px; }
+.anchors { position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: hidden; }
+@media (prefers-reduced-motion: no-preference) {
+  .enter > * { animation: rise 420ms var(--ease) both; }
+  .enter > *:nth-child(2) { animation-delay: 60ms; }
+  .enter > *:nth-child(3) { animation-delay: 120ms; }
+  .enter > *:nth-child(n+4) { animation-delay: 180ms; }
+}
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* phone */
 .route-toggle { display: none; }
@@ -195,10 +214,11 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 </style>
 
 <header class="topbar">
+  <a class="skip-link" href="#page">Skip to the steps</a>
   <div class="topbar-inner">
     <a class="brand" href="#start" aria-label="Start page">
       <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="14" width="5" height="10" rx="1.5" fill="var(--line-strong)"/><rect x="10.5" y="9" width="5" height="15" rx="1.5" fill="var(--muted)"/><rect x="19" y="2" width="5" height="22" rx="1.5" fill="var(--ember)"/></svg>
-      <span><span class="brand-name">AI Web Design &amp; Dev</span><span class="brand-sub">Course companion · The Vibe Marketing Lab</span></span>
+      <span class="brand-name">AI Web Design &amp; Dev</span>
     </a>
     <div class="overall">
       <span class="save" id="save" data-state="loading" title="">Loading…</span>
@@ -214,6 +234,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
     <div class="route-body" id="route-body"></div>
   </nav>
   <main class="page" id="page" tabindex="-1"></main>
+  <div class="anchors" aria-hidden="true" id="anchors"></div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -319,11 +340,13 @@ async function copyText(text) {
 }
 
 /* ---------- views ---------- */
+let animateNext = true; // entrance plays once per page view, never on a re-render after a tick
+function enterCls() { const on = animateNext; animateNext = false; return on ? " enter" : ""; }
 function currentId() { const h = location.hash.replace("#", ""); return unitById[h] ? h : "start"; }
 
 function renderRoute() {
   const cur = currentId();
-  const group = (label, kind) => `<h2>${label}</h2><ol>` + UNITS.filter(u => u.kind === kind).map(u => {
+  const group = (label, kind) => `<p class="group">${label}</p><ol>` + UNITS.filter(u => u.kind === kind).map(u => {
     const st = unitState(u), ids = requiredStepsOf(u);
     const state = st === "done" ? "done" : isAhead(u) ? "ahead" : "open";
     const mark = st === "done" ? `<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : esc(u.num);
@@ -401,7 +424,7 @@ function renderUnit(u) {
       : `<div class="next"><p>${left} step${left === 1 ? "" : "s"} left.</p><div class="next-row"><button class="btn btn-primary" data-jump="first-open">Go to the next open step</button></div></div>`;
   }
   $("#page").innerHTML = `
-    <div class="page-head">
+    <div class="page-head${enterCls()}">
       <span class="eyebrow">${eyebrow}</span>
       <h1>${esc(u.title)}</h1>
       <p class="goal">${inline(u.goal)}</p>
@@ -425,7 +448,7 @@ function renderStart() {
     return `<span class="${p === 100 ? "done" : p > 0 ? "part" : ""}" style="--p:${p}%" title="${esc(u.short)}: ${p}%"></span>`; }).join("");
   const started = UNITS.some(u => unitState(u) !== "todo");
   $("#page").innerHTML = `
-    <div class="hero">
+    <div class="hero${enterCls()}">
       <span class="eyebrow">Course companion</span>
       <h1>Your site, built in 7 days. Then built to be found.</h1>
       <p>This page walks you through the course one step at a time. Watch the lesson, do the steps, tick them off. In launch week you go from nothing to your own site, planned, designed and running on your phone. After that, three stages put in your real content, get it ready for Google, and launch it on your domain.</p>
@@ -439,18 +462,18 @@ function renderStart() {
     </div>
     <div class="start-grid">
       <div class="start-card">
-        <h3>Before Day 1: get the starter kit</h3>
+        <h2>Before Day 1: get the starter kit</h2>
         <p>Download the starter kit from GitHub, open the folder in Claude Code, then type this. Claude checks your computer and installs the two design skills used in the course.</p>
         <div class="cmd"><code>/setup</code><button class="btn-small" data-copytext="/setup">Copy</button></div>
         <p><a href="${REPO_URL}" target="_blank" rel="noopener">Open the starter kit ↗</a></p>
       </div>
       <div class="start-card">
-        <h3>What you'll have at the end</h3>
+        <h2>What you'll have at the end</h2>
         <p>A site you own: code in GitHub, hosted on Cloudflare, planned around what your customers search, and set up for Google and AI search. You can change any page yourself.</p>
       </div>
     </div>
     <div class="how">
-      <h2 style="font-size:1.3rem">How this page works</h2>
+      <h2 class="section">How this page works</h2>
       <ol>
         <li>Each day has one or more lessons. Watch the lesson on Skool, then work through its steps here.</li>
         <li>Paste the prompts into Claude Code. Claude does the typing; you check it worked.</li>
@@ -506,8 +529,10 @@ $("#route-toggle").addEventListener("click", () => {
   const r = $("#route"), open = r.dataset.open !== "true";
   r.dataset.open = open; $("#route-toggle").setAttribute("aria-expanded", open);
 });
-window.addEventListener("hashchange", () => { $("#route").dataset.open = "false"; $("#route-toggle").setAttribute("aria-expanded", "false"); render(); window.scrollTo(0, 0); });
+window.addEventListener("hashchange", () => { animateNext = true; $("#route").dataset.open = "false"; $("#route-toggle").setAttribute("aria-expanded", "false"); render(); window.scrollTo(0, 0); });
 
+document.documentElement.lang = "en-AU";
+document.getElementById("anchors").innerHTML = ["start", ...UNITS.map(u => u.id)].map(id => `<span id="${id}"></span>`).join("");
 setSave("loading");
 connect();
 </script>
