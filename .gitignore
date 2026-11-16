@@ -1,0 +1,17 @@
+# secrets and local config
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# build and tooling
+node_modules/
+.wrangler/
+dist/
+.astro/
+.taste-skill/
+.impeccable/
+
+# OS
+.DS_Store
+Thumbs.db
