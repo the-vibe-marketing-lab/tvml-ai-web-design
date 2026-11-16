@@ -1,0 +1,513 @@
+<title>AI Web Design & Dev Companion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@600;700;800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field notebook for one build. Left rail = the route (7 launch days, then 3 stages);
+   right = today's page of steps, ticked off with the Ember pen. TVML tokens: Ink ground, Paper type, Ember. */
+:root {
+  --bg: #0d0b0a;
+  --panel: #1f1b19;
+  --heading: #faf7f2;
+  --body: #d8cfc2;
+  --muted: #a89e92;
+  --subtle: #8a7f74;
+  --ember: #c96442;
+  --ember-text: #e2794f;
+  --ember-soft: #3b1407;
+  --on-ember: #0d0b0a;
+  --line: #3a3330;
+  --line-strong: #6b625a;
+  --focus: #e2794f;
+  --ok: #8acca1;
+  --ok-soft: #042915;
+  --font-display: "Gabarito", "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-pen: cubic-bezier(0.45, 0.05, 0.3, 1);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #6b625a; --subtle: #6b625a;
+    --ember: #c96442; --ember-text: #80361c; --ember-soft: #fff4f1; --on-ember: #0d0b0a;
+    --line: #d8cfc2; --line-strong: #8a7f74; --focus: #a44a2c; --ok: #185e38; --ok-soft: #f0faf3;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #6b625a; --subtle: #6b625a;
+  --ember: #c96442; --ember-text: #80361c; --ember-soft: #fff4f1; --on-ember: #0d0b0a;
+  --line: #d8cfc2; --line-strong: #8a7f74; --focus: #a44a2c; --ok: #185e38; --ok-soft: #f0faf3;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { background: var(--bg); }
+body { color: var(--body); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--ember-text); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); color: var(--heading); text-wrap: balance; margin: 0; line-height: 1.15; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--panel); padding: 0.1em 0.35em; border-radius: 4px; color: var(--heading); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* top bar */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.topbar-inner { display: flex; align-items: center; gap: 12px; max-width: 1200px; margin: 0 auto; padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--heading); min-width: 0; }
+.brand svg { flex: none; }
+.brand-name { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand-sub { color: var(--muted); font-size: 0.8rem; display: block; font-family: var(--font-body); font-weight: 500; }
+.overall { margin-left: auto; display: flex; align-items: center; gap: 12px; flex: none; }
+.meter { width: 120px; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--ember); width: 0; transition: width 320ms var(--ease); }
+.overall-num { font-variant-numeric: tabular-nums; font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+.save { font-size: 0.75rem; color: var(--subtle); border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; white-space: nowrap; }
+.save[data-state="account"] { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+
+/* shell */
+.shell { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 40px; max-width: 1200px; margin: 0 auto; padding-block: 32px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.route { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); align-self: start; max-height: calc(100vh - 100px); overflow: auto; }
+.route h2 { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--subtle); font-family: var(--font-body); font-weight: 600; margin: 20px 0 8px; }
+.route h2:first-child { margin-top: 0; }
+.route ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; position: relative; }
+.route a { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
+  text-decoration: none; color: var(--body); font-size: 0.92rem; }
+.route a:hover { background: var(--panel); }
+.route a[aria-current="page"] { background: var(--ember-soft); color: var(--heading); }
+.route .mark { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.route a[data-state="done"] .mark { border-color: var(--ember); background: var(--ember); color: var(--on-ember); }
+.route a[data-state="ahead"] { color: var(--subtle); }
+.route .count { font-size: 0.75rem; color: var(--subtle); font-variant-numeric: tabular-nums; }
+.route .label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.route-extra { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 0.85rem; }
+.route .route-extra a { display: block; padding: 2px 10px; color: var(--ember-text); text-decoration: underline; }
+.route .route-extra a:hover { background: none; }
+
+/* page */
+.page { min-width: 0; max-width: 760px; }
+.eyebrow { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ember-text); font-weight: 600; }
+.page-head { display: grid; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.page-head h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.01em; }
+.goal { font-size: 1.1rem; color: var(--body); max-width: 60ch; margin: 0; }
+.unit-progress { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.unit-progress .meter { width: 160px; }
+
+.notice { margin-top: 20px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.notice p { margin: 0; flex: 1 1 260px; }
+.notice.soft { background: var(--panel); border-color: var(--line); }
+
+.lesson { padding-block: 32px; border-bottom: 1px solid var(--line); display: grid; gap: 16px; }
+.lesson-head { display: grid; gap: 6px; }
+.lesson-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 0.85rem; color: var(--muted); }
+.lesson-num { font-family: var(--font-mono); color: var(--ember-text); font-size: 0.85rem; }
+.lesson h2 { font-size: 1.55rem; font-weight: 700; }
+.tag { border: 1px solid var(--line); border-radius: 99px; padding: 1px 9px; font-size: 0.75rem; color: var(--muted); }
+.idea { margin: 0; max-width: 62ch; }
+.watch { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+.watch.pending { color: var(--subtle); text-decoration: none; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.step { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 4px 14px;
+  transition: border-color 220ms var(--ease), background 220ms var(--ease); }
+.step.is-done { border-color: color-mix(in srgb, var(--ember) 55%, var(--line)); background: color-mix(in srgb, var(--ember-soft) 55%, transparent); }
+.tick { grid-row: span 3; width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--line-strong); background: transparent; cursor: pointer;
+  display: grid; place-items: center; padding: 0; color: var(--ember); }
+.tick:hover { border-color: var(--ember); }
+.step.is-done .tick { border-color: var(--ember); }
+.tick svg path { stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset 320ms var(--ease-pen); }
+.step.is-done .tick svg path { stroke-dashoffset: 0; }
+.step-text { margin: 4px 0 0; color: var(--heading); font-weight: 500; }
+.step label { cursor: pointer; }
+.step-check { margin: 0; font-size: 0.88rem; color: var(--muted); }
+.step-check b { color: var(--body); font-weight: 600; }
+
+.prompt { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; min-width: 0; }
+.prompt-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 12px; border-bottom: 1px solid var(--line); font-size: 0.75rem; color: var(--subtle); letter-spacing: 0.06em; text-transform: uppercase; }
+.prompt pre { margin: 0; padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.55; color: var(--heading); white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; }
+.prompt.collapsed pre { max-height: 96px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+.prompt-actions { display: flex; gap: 6px; }
+
+.btn { font: inherit; font-weight: 600; font-size: 0.9rem; border-radius: 99px; padding: 9px 18px; cursor: pointer; border: 1.5px solid transparent; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; min-height: 44px; }
+.btn-primary { background: var(--ember); color: var(--on-ember); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--heading); border-color: var(--line-strong); }
+.btn-ghost:hover { border-color: var(--heading); }
+.btn-small { font-size: 0.75rem; padding: 4px 10px; min-height: 30px; border-radius: 6px; font-weight: 600; background: transparent; color: var(--body); border: 1px solid var(--line-strong); cursor: pointer; font-family: var(--font-body); }
+.btn-small:hover { color: var(--heading); border-color: var(--heading); }
+.btn-link { background: none; border: 0; color: var(--subtle); font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; padding: 0; text-align: left; }
+
+.done-when { display: flex; gap: 12px; align-items: flex-start; border-left: 3px solid var(--line-strong); padding: 4px 0 4px 14px; color: var(--body); font-size: 0.95rem; }
+.done-when.met { border-left-color: var(--ok); }
+.done-when strong { color: var(--heading); font-weight: 600; }
+
+.next { margin-top: 32px; display: grid; gap: 12px; }
+.next-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.next p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+/* start view */
+.hero { display: grid; gap: 16px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -0.015em; max-width: 16ch; }
+.hero p { margin: 0; font-size: 1.12rem; max-width: 58ch; }
+.route-map { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.route-map span { height: 8px; border-radius: 99px; background: var(--line); }
+.route-map span.done { background: var(--ember); }
+.route-map span.part { background: linear-gradient(90deg, var(--ember) var(--p, 0%), var(--line) var(--p, 0%)); }
+.route-map-legend { display: grid; grid-template-columns: 7fr 3fr; gap: 6px; margin-top: 6px; font-size: 0.78rem; color: var(--subtle); }
+.route-map-legend span { border-top: 1px solid var(--line); padding-top: 4px; }
+.start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding-block: 28px; }
+.start-card { border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.start-card h3 { font-size: 1.1rem; }
+.start-card p { margin: 0; font-size: 0.93rem; }
+.cmd { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 6px 6px 10px; background: var(--panel); min-width: 0; }
+.cmd code { background: none; padding: 0; overflow-x: auto; white-space: nowrap; flex: 1; min-width: 0; }
+.how { padding-top: 8px; display: grid; gap: 10px; }
+.how ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 62ch; }
+
+.footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.82rem; color: var(--subtle); }
+.confirm { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--heading); color: var(--bg); padding: 10px 16px; border-radius: 99px; font-size: 0.88rem; font-weight: 500; transition: all 220ms var(--ease); z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* phone */
+.route-toggle { display: none; }
+@media (max-width: 880px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-block: 20px 64px; }
+  .route { position: static; max-height: none; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .route[data-open="false"] .route-body { display: none; }
+  .route-toggle { display: flex; width: 100%; justify-content: space-between; align-items: center; background: none; border: 0; color: var(--heading); font: inherit; font-weight: 600; cursor: pointer; padding: 4px 2px; min-height: 40px; }
+  .route[data-open="true"] .route-toggle { margin-bottom: 8px; }
+  .meter { width: 72px; }
+  .overall .save { display: none; }
+  .brand-sub { display: none; }
+}
+@media (max-width: 420px) { .overall-num { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#start" aria-label="Start page">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="14" width="5" height="10" rx="1.5" fill="var(--line-strong)"/><rect x="10.5" y="9" width="5" height="15" rx="1.5" fill="var(--muted)"/><rect x="19" y="2" width="5" height="22" rx="1.5" fill="var(--ember)"/></svg>
+      <span><span class="brand-name">AI Web Design &amp; Dev</span><span class="brand-sub">Course companion · The Vibe Marketing Lab</span></span>
+    </a>
+    <div class="overall">
+      <span class="save" id="save" data-state="loading" title="">Loading…</span>
+      <div class="meter" aria-hidden="true"><span id="overall-bar"></span></div>
+      <span class="overall-num" id="overall-num">0%</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="route" id="route" aria-label="Course route" data-open="false">
+    <button class="route-toggle" id="route-toggle" aria-expanded="false" aria-controls="route-body"><span id="route-toggle-label">Course route</span><span aria-hidden="true">▾</span></button>
+    <div class="route-body" id="route-body"></div>
+  </nav>
+  <main class="page" id="page" tabindex="-1"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const COURSE = /*__DATA__*/null;
+const REPO_URL = "https://github.com/the-vibe-marketing-lab/tvml-ai-web-design";
+const COMMUNITY_URL = "https://www.skool.com/the-vibe-marketing-lab";
+const LOCAL_KEY = "tvml-aiwd-progress-v1";
+
+/* ---------- units ---------- */
+const UNITS = [];
+COURSE.days.forEach(d => UNITS.push({ id: "day-" + d.day, kind: "day", short: "Day " + d.day, title: d.title, goal: d.goal, lessons: d.lessons, num: String(d.day) }));
+COURSE.stages.forEach((s, i) => UNITS.push({ id: s.stage.toLowerCase(), kind: "stage", short: s.stage, title: s.stage, goal: s.goal, lessons: s.lessons, num: ["B", "R", "S"][i] || s.stage[0] }));
+const unitById = Object.fromEntries(UNITS.map(u => [u.id, u]));
+const stepsOf = u => u.lessons.flatMap(l => l.steps.map(s => s.id));
+const requiredStepsOf = u => u.lessons.filter(l => !l.optional).flatMap(l => l.steps.map(s => s.id));
+
+/* ---------- state ---------- */
+let done = {};
+let mode = "loading"; // loading | account | local
+let docRef = null;
+let writing = false, pendingWrite = false, writeTimer = null;
+
+function readLocal() { try { const v = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); return v && typeof v === "object" ? (v.done || {}) : {}; } catch (e) { return {}; } }
+function writeLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ done, updatedAt: Date.now() })); } catch (e) {} }
+
+function setSave(state) {
+  mode = state;
+  const el = document.getElementById("save");
+  el.dataset.state = state;
+  el.textContent = state === "account" ? "Saved to your account" : state === "local" ? "Saved on this device" : "Loading…";
+  el.title = state === "account" ? "Your ticks follow you to any device where you're signed in to Claude." :
+    state === "local" ? "Your ticks are kept in this browser only. Sign in to claude.ai to keep them across devices." : "";
+}
+
+function scheduleSave() {
+  writeLocal();
+  if (mode !== "account" || !docRef) return;
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(flush, 600);
+}
+async function flush() {
+  writeTimer = null;
+  if (writing) { pendingWrite = true; return; }
+  writing = true;
+  try { await docRef.set({ done: { ...done }, updatedAt: Date.now() }); }
+  catch (e) { setSave("local"); toast("Couldn't save to your account. Your ticks are kept on this device."); }
+  writing = false;
+  if (pendingWrite) { pendingWrite = false; flush(); }
+}
+
+async function connect() {
+  done = readLocal();
+  render();
+  let settled = false;
+  const fallback = () => { if (!settled) { settled = true; setSave("local"); } };
+  const timer = setTimeout(fallback, 10000);
+  try {
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    const id = user ? await user.id() : null;
+    if (!db || !id) { clearTimeout(timer); fallback(); return; }
+    docRef = db.doc("data/users/" + id + "/progress");
+    let first = true;
+    docRef.onSnapshot(snap => {
+      if (!snap.fromCache) clearTimeout(timer);
+      const data = snap.exists ? snap.data() : null;
+      if (first) {
+        first = false;
+        settled = true;
+        setSave("account");
+        const remote = data && data.done ? { ...data.done } : {};
+        const local = readLocal();
+        const merged = { ...remote };
+        let added = false;
+        for (const k in local) if (local[k] && !merged[k]) { merged[k] = true; added = true; }
+        done = merged;
+        writeLocal();
+        if (added) flush();
+        render();
+        return;
+      }
+      if (data && data.done && !writing && !writeTimer) { done = { ...data.done }; writeLocal(); render(); }
+    }, () => { clearTimeout(timer); settled = true; setSave("local"); });
+  } catch (e) { clearTimeout(timer); fallback(); }
+}
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const inline = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+function countDone(ids) { return ids.filter(id => done[id]).length; }
+function unitState(u) {
+  const req = requiredStepsOf(u), n = countDone(req);
+  if (req.length && n === req.length) return "done";
+  return n > 0 ? "started" : "todo";
+}
+function firstUnfinished() { return UNITS.find(u => unitState(u) !== "done") || null; }
+function isAhead(u) { const f = firstUnfinished(); return f && UNITS.indexOf(u) > UNITS.indexOf(f); }
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2200); }
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast("Copied. Paste it into Claude Code."); }
+  catch (e) { toast("Copy didn't work here. Select the text and copy it."); }
+}
+
+/* ---------- views ---------- */
+function currentId() { const h = location.hash.replace("#", ""); return unitById[h] ? h : "start"; }
+
+function renderRoute() {
+  const cur = currentId();
+  const group = (label, kind) => `<h2>${label}</h2><ol>` + UNITS.filter(u => u.kind === kind).map(u => {
+    const st = unitState(u), ids = requiredStepsOf(u);
+    const state = st === "done" ? "done" : isAhead(u) ? "ahead" : "open";
+    const mark = st === "done" ? `<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : esc(u.num);
+    const label = u.kind === "day" ? `${esc(u.short)}: ${esc(u.title)}` : esc(u.title);
+    return `<li><a href="#${u.id}" data-state="${state}" ${cur === u.id ? 'aria-current="page"' : ""}>
+      <span class="mark">${mark}</span><span class="label">${label}</span><span class="count">${countDone(ids)}/${ids.length}</span></a></li>`;
+  }).join("") + `</ol>`;
+  $("#route-body").innerHTML =
+    `<ol><li><a href="#start" ${cur === "start" ? 'aria-current="page"' : ""}><span class="mark">★</span><span class="label">Start here</span><span class="count"></span></a></li></ol>` +
+    group("Launch week", "day") + group("After launch", "stage") +
+    `<div class="route-extra"><a href="${REPO_URL}" target="_blank" rel="noopener">Starter kit on GitHub ↗</a><a href="${COMMUNITY_URL}" target="_blank" rel="noopener">Ask in the community ↗</a></div>`;
+  const u = unitById[cur];
+  $("#route-toggle-label").textContent = u ? (u.kind === "day" ? `${u.short} of 7: ${u.title}` : u.title + " stage") : "Course route";
+}
+
+function renderOverall() {
+  const all = UNITS.flatMap(requiredStepsOf), n = countDone(all), pct = all.length ? Math.round(n / all.length * 100) : 0;
+  $("#overall-bar").style.width = pct + "%";
+  $("#overall-num").textContent = pct + "%";
+}
+
+function promptBlock(p, id) {
+  const long = p.split("\n").length > 6 || p.length > 420;
+  return `<div class="prompt ${long ? "collapsed" : ""}" id="pr-${esc(id)}">
+    <div class="prompt-bar"><span>Prompt for Claude Code</span><span class="prompt-actions">
+      ${long ? `<button class="btn-small" data-expand="${esc(id)}" aria-expanded="false">Show all</button>` : ""}
+      <button class="btn-small" data-copy="${esc(id)}">Copy</button></span></div>
+    <pre>${esc(p)}</pre></div>`;
+}
+
+function lessonHtml(l) {
+  const ids = l.steps.map(s => s.id), all = ids.length && countDone(ids) === ids.length;
+  const watch = l.no_video ? "" : l.skool_url ? `<a class="watch" href="${esc(l.skool_url)}" target="_blank" rel="noopener">Open the lesson on Skool ↗</a>`
+    : `<span class="watch pending">Lesson link coming soon</span>`;
+  return `<section class="lesson" aria-labelledby="h-${esc(l.number)}">
+    <div class="lesson-head">
+      <div class="lesson-meta"><span class="lesson-num">${esc(l.number)}</span>${l.minutes ? `<span>${l.minutes} min video</span>` : ""}${l.optional ? `<span class="tag">Optional</span>` : ""}</div>
+      <h2 id="h-${esc(l.number)}">${esc(l.page_title || l.tracker_title)}</h2>
+    </div>
+    <p class="idea">${inline(l.idea)}</p>
+    ${watch ? `<div>${watch}</div>` : ""}
+    <ol class="steps">${l.steps.map(s => `
+      <li class="step ${done[s.id] ? "is-done" : ""}" data-step="${esc(s.id)}">
+        <button class="tick" role="checkbox" aria-checked="${done[s.id] ? "true" : "false"}" aria-labelledby="t-${esc(s.id)}" data-tick="${esc(s.id)}">
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <p class="step-text" id="t-${esc(s.id)}"><label data-tick="${esc(s.id)}">${inline(s.text)}</label></p>
+        ${s.check ? `<p class="step-check"><b>You should see:</b> ${inline(s.check)}</p>` : ""}
+        ${s.prompt ? promptBlock(s.prompt, s.id) : ""}
+      </li>`).join("")}
+    </ol>
+    <div class="done-when ${all ? "met" : ""}"><span aria-hidden="true">${all ? "✓" : "◎"}</span><span><strong>Done when:</strong> ${inline(l.done_when)}</span></div>
+  </section>`;
+}
+
+function renderUnit(u) {
+  const ids = requiredStepsOf(u), n = countDone(ids), pct = ids.length ? Math.round(n / ids.length * 100) : 0;
+  const idx = UNITS.indexOf(u), prev = UNITS[idx - 1], next = UNITS[idx + 1];
+  const f = firstUnfinished();
+  const ahead = isAhead(u);
+  const eyebrow = u.kind === "day" ? `Launch week · Day ${u.num} of 7` : `After launch · ${u.title} stage`;
+  const notice = ahead && f ? `<div class="notice"><p>You haven't finished <strong>${esc(f.kind === "day" ? f.short : f.title)}</strong> yet. The steps here assume it's done, so things may not work as shown.</p>
+      <a class="btn btn-ghost" href="#${f.id}">Back to ${esc(f.kind === "day" ? f.short : f.title)}</a></div>` : "";
+  const left = ids.length - n;
+  let nextHtml = "";
+  if (next) {
+    const label = next.kind === "day" ? `${next.short}: ${next.title}` : `${next.title} stage`;
+    nextHtml = left === 0
+      ? `<div class="next"><p>${u.kind === "day" && u.num === "7" ? "Launch week done. Your site is built and running. Next you fill it with real content, make it findable, then put it live on your domain." : "All steps ticked. On to the next one."}</p>
+          <div class="next-row"><a class="btn btn-primary" href="#${next.id}">Start ${esc(label)} →</a></div></div>`
+      : `<div class="next"><p>${left} step${left === 1 ? "" : "s"} left on this page. Tick them off before moving on, so the next page starts from a working setup.</p>
+          <div class="next-row"><button class="btn btn-primary" data-jump="first-open">Go to the next open step</button><a class="btn btn-ghost" href="#${next.id}">Skip ahead to ${esc(label)}</a></div></div>`;
+  } else {
+    nextHtml = left === 0 ? `<div class="next"><p>That's the whole course. Post your live URL in the community so we can see it.</p><div class="next-row"><a class="btn btn-primary" href="${COMMUNITY_URL}" target="_blank" rel="noopener">Share your site ↗</a></div></div>`
+      : `<div class="next"><p>${left} step${left === 1 ? "" : "s"} left.</p><div class="next-row"><button class="btn btn-primary" data-jump="first-open">Go to the next open step</button></div></div>`;
+  }
+  $("#page").innerHTML = `
+    <div class="page-head">
+      <span class="eyebrow">${eyebrow}</span>
+      <h1>${esc(u.title)}</h1>
+      <p class="goal">${inline(u.goal)}</p>
+      <div class="unit-progress"><div class="meter" aria-hidden="true"><span style="width:${pct}%"></span></div><span>${n} of ${ids.length} steps ticked</span></div>
+      ${notice}
+    </div>
+    ${u.lessons.map(lessonHtml).join("")}
+    ${nextHtml}
+    ${prev ? `<p style="margin-top:20px"><a href="#${prev.id}">← ${esc(prev.kind === "day" ? prev.short : prev.title)}</a></p>` : ""}
+    ${footer()}`;
+}
+
+function footer() {
+  return `<div class="footer"><span>Companion to <a href="${COMMUNITY_URL}" target="_blank" rel="noopener">AI Web Design &amp; Dev</a> in The Vibe Marketing Lab.</span>
+    <span class="confirm" id="reset-zone"><button class="btn-link" data-reset="ask">Reset my progress</button></span></div>`;
+}
+
+function renderStart() {
+  const f = firstUnfinished();
+  const map = UNITS.map(u => { const ids = requiredStepsOf(u), n = countDone(ids), p = ids.length ? Math.round(n / ids.length * 100) : 0;
+    return `<span class="${p === 100 ? "done" : p > 0 ? "part" : ""}" style="--p:${p}%" title="${esc(u.short)}: ${p}%"></span>`; }).join("");
+  const started = UNITS.some(u => unitState(u) !== "todo");
+  $("#page").innerHTML = `
+    <div class="hero">
+      <span class="eyebrow">Course companion</span>
+      <h1>Your site, built in 7 days. Then built to be found.</h1>
+      <p>This page walks you through the course one step at a time. Watch the lesson, do the steps, tick them off. In launch week you go from nothing to your own site, planned, designed and running on your phone. After that, three stages put in your real content, get it ready for Google, and launch it on your domain.</p>
+      <div>
+        <div class="route-map" aria-label="Your progress across the 7 launch days and 3 stages">${map}</div>
+        <div class="route-map-legend"><span>Launch week: days 1 to 7</span><span>Build, Rank, Ship</span></div>
+      </div>
+      <div class="next-row">
+        ${f ? `<a class="btn btn-primary" href="#${f.id}">${started ? "Pick up where you left off" : "Start Day 1"} →</a>` : `<a class="btn btn-primary" href="${COMMUNITY_URL}" target="_blank" rel="noopener">Share your live site ↗</a>`}
+      </div>
+    </div>
+    <div class="start-grid">
+      <div class="start-card">
+        <h3>Before Day 1: get the starter kit</h3>
+        <p>Download the starter kit from GitHub, open the folder in Claude Code, then type this. Claude checks your computer and installs the two design skills used in the course.</p>
+        <div class="cmd"><code>/setup</code><button class="btn-small" data-copytext="/setup">Copy</button></div>
+        <p><a href="${REPO_URL}" target="_blank" rel="noopener">Open the starter kit ↗</a></p>
+      </div>
+      <div class="start-card">
+        <h3>What you'll have at the end</h3>
+        <p>A site you own: code in GitHub, hosted on Cloudflare, planned around what your customers search, and set up for Google and AI search. You can change any page yourself.</p>
+      </div>
+    </div>
+    <div class="how">
+      <h2 style="font-size:1.3rem">How this page works</h2>
+      <ol>
+        <li>Each day has one or more lessons. Watch the lesson on Skool, then work through its steps here.</li>
+        <li>Paste the prompts into Claude Code. Claude does the typing; you check it worked.</li>
+        <li>Tick each step when you see the result it describes. Your ticks are saved, so you can stop and come back.</li>
+        <li>Later days stay open, but finish each day first. Every step assumes the ones before it are done.</li>
+      </ol>
+    </div>
+    ${footer()}`;
+}
+
+function render() {
+  const cur = currentId();
+  renderRoute(); renderOverall();
+  if (cur === "start") renderStart(); else renderUnit(unitById[cur]);
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-tick]");
+  if (t) {
+    e.preventDefault();
+    const id = t.dataset.tick;
+    const unitBefore = UNITS.find(u => stepsOf(u).includes(id));
+    const wasDone = unitBefore && unitState(unitBefore) === "done";
+    done[id] = !done[id];
+    if (!done[id]) delete done[id];
+    const li = document.querySelector(`.step[data-step="${CSS.escape(id)}"]`);
+    if (li) { li.classList.toggle("is-done", !!done[id]); li.querySelector(".tick").setAttribute("aria-checked", done[id] ? "true" : "false"); }
+    scheduleSave();
+    const keep = window.scrollY;
+    setTimeout(() => { render(); window.scrollTo(0, keep); const b = document.querySelector(`.step[data-step="${CSS.escape(id)}"] .tick`); if (b) b.focus({ preventScroll: true }); }, 340);
+    if (unitBefore && !wasDone && unitState(unitBefore) === "done") toast(unitBefore.kind === "day" ? `${unitBefore.short} done.` : `${unitBefore.title} stage done.`);
+    return;
+  }
+  const c = e.target.closest("[data-copy]");
+  if (c) { const s = UNITS.flatMap(u => u.lessons.flatMap(l => l.steps)).find(x => x.id === c.dataset.copy); if (s) copyText(s.prompt); return; }
+  const ct = e.target.closest("[data-copytext]");
+  if (ct) { copyText(ct.dataset.copytext); return; }
+  const x = e.target.closest("[data-expand]");
+  if (x) { const box = document.getElementById("pr-" + x.dataset.expand); const open = box.classList.toggle("collapsed") === false; x.textContent = open ? "Show less" : "Show all"; x.setAttribute("aria-expanded", open); return; }
+  const j = e.target.closest("[data-jump]");
+  if (j) { const el = document.querySelector(".step:not(.is-done)"); if (el) { el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }); el.querySelector(".tick").focus({ preventScroll: true }); } return; }
+  const r = e.target.closest("[data-reset]");
+  if (r) {
+    const zone = document.getElementById("reset-zone");
+    if (r.dataset.reset === "ask") { zone.innerHTML = `<span>Untick every step on every day?</span><button class="btn-small" data-reset="yes">Yes, reset</button><button class="btn-small" data-reset="no">Cancel</button>`; }
+    else if (r.dataset.reset === "yes") { done = {}; scheduleSave(); render(); toast("Progress reset."); }
+    else render();
+    return;
+  }
+});
+$("#route-toggle").addEventListener("click", () => {
+  const r = $("#route"), open = r.dataset.open !== "true";
+  r.dataset.open = open; $("#route-toggle").setAttribute("aria-expanded", open);
+});
+window.addEventListener("hashchange", () => { $("#route").dataset.open = "false"; $("#route-toggle").setAttribute("aria-expanded", "false"); render(); window.scrollTo(0, 0); });
+
+setSave("loading");
+connect();
+</script>

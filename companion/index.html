@@ -1,0 +1,513 @@
+<title>AI Web Design & Dev Companion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gabarito:wght@600;700;800&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field notebook for one build. Left rail = the route (7 launch days, then 3 stages);
+   right = today's page of steps, ticked off with the Ember pen. TVML tokens: Ink ground, Paper type, Ember. */
+:root {
+  --bg: #0d0b0a;
+  --panel: #1f1b19;
+  --heading: #faf7f2;
+  --body: #d8cfc2;
+  --muted: #a89e92;
+  --subtle: #8a7f74;
+  --ember: #c96442;
+  --ember-text: #e2794f;
+  --ember-soft: #3b1407;
+  --on-ember: #0d0b0a;
+  --line: #3a3330;
+  --line-strong: #6b625a;
+  --focus: #e2794f;
+  --ok: #8acca1;
+  --ok-soft: #042915;
+  --font-display: "Gabarito", "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-pen: cubic-bezier(0.45, 0.05, 0.3, 1);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #6b625a; --subtle: #6b625a;
+    --ember: #c96442; --ember-text: #80361c; --ember-soft: #fff4f1; --on-ember: #0d0b0a;
+    --line: #d8cfc2; --line-strong: #8a7f74; --focus: #a44a2c; --ok: #185e38; --ok-soft: #f0faf3;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #faf7f2; --panel: #ece5d9; --heading: #0d0b0a; --body: #3a3330; --muted: #6b625a; --subtle: #6b625a;
+  --ember: #c96442; --ember-text: #80361c; --ember-soft: #fff4f1; --on-ember: #0d0b0a;
+  --line: #d8cfc2; --line-strong: #8a7f74; --focus: #a44a2c; --ok: #185e38; --ok-soft: #f0faf3;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { background: var(--bg); }
+body { color: var(--body); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--ember-text); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3 { font-family: var(--font-display); color: var(--heading); text-wrap: balance; margin: 0; line-height: 1.15; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: var(--panel); padding: 0.1em 0.35em; border-radius: 4px; color: var(--heading); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* top bar */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); }
+.topbar-inner { display: flex; align-items: center; gap: 12px; max-width: 1200px; margin: 0 auto; padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--heading); min-width: 0; }
+.brand svg { flex: none; }
+.brand-name { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand-sub { color: var(--muted); font-size: 0.8rem; display: block; font-family: var(--font-body); font-weight: 500; }
+.overall { margin-left: auto; display: flex; align-items: center; gap: 12px; flex: none; }
+.meter { width: 120px; height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.meter > span { display: block; height: 100%; background: var(--ember); width: 0; transition: width 320ms var(--ease); }
+.overall-num { font-variant-numeric: tabular-nums; font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+.save { font-size: 0.75rem; color: var(--subtle); border: 1px solid var(--line); border-radius: 99px; padding: 3px 10px; white-space: nowrap; }
+.save[data-state="account"] { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+
+/* shell */
+.shell { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 40px; max-width: 1200px; margin: 0 auto; padding-block: 32px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.route { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 76px); align-self: start; max-height: calc(100vh - 100px); overflow: auto; }
+.route h2 { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--subtle); font-family: var(--font-body); font-weight: 600; margin: 20px 0 8px; }
+.route h2:first-child { margin-top: 0; }
+.route ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; position: relative; }
+.route a { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px;
+  text-decoration: none; color: var(--body); font-size: 0.92rem; }
+.route a:hover { background: var(--panel); }
+.route a[aria-current="page"] { background: var(--ember-soft); color: var(--heading); }
+.route .mark { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-strong); display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.route a[data-state="done"] .mark { border-color: var(--ember); background: var(--ember); color: var(--on-ember); }
+.route a[data-state="ahead"] { color: var(--subtle); }
+.route .count { font-size: 0.75rem; color: var(--subtle); font-variant-numeric: tabular-nums; }
+.route .label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.route-extra { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 8px; font-size: 0.85rem; }
+.route .route-extra a { display: block; padding: 2px 10px; color: var(--ember-text); text-decoration: underline; }
+.route .route-extra a:hover { background: none; }
+
+/* page */
+.page { min-width: 0; max-width: 760px; }
+.eyebrow { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ember-text); font-weight: 600; }
+.page-head { display: grid; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+.page-head h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.01em; }
+.goal { font-size: 1.1rem; color: var(--body); max-width: 60ch; margin: 0; }
+.unit-progress { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.unit-progress .meter { width: 160px; }
+
+.notice { margin-top: 20px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 14px 16px; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; }
+.notice p { margin: 0; flex: 1 1 260px; }
+.notice.soft { background: var(--panel); border-color: var(--line); }
+
+.lesson { padding-block: 32px; border-bottom: 1px solid var(--line); display: grid; gap: 16px; }
+.lesson-head { display: grid; gap: 6px; }
+.lesson-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 0.85rem; color: var(--muted); }
+.lesson-num { font-family: var(--font-mono); color: var(--ember-text); font-size: 0.85rem; }
+.lesson h2 { font-size: 1.55rem; font-weight: 700; }
+.tag { border: 1px solid var(--line); border-radius: 99px; padding: 1px 9px; font-size: 0.75rem; color: var(--muted); }
+.idea { margin: 0; max-width: 62ch; }
+.watch { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; }
+.watch.pending { color: var(--subtle); text-decoration: none; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.step { border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 4px 14px;
+  transition: border-color 220ms var(--ease), background 220ms var(--ease); }
+.step.is-done { border-color: color-mix(in srgb, var(--ember) 55%, var(--line)); background: color-mix(in srgb, var(--ember-soft) 55%, transparent); }
+.tick { grid-row: span 3; width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--line-strong); background: transparent; cursor: pointer;
+  display: grid; place-items: center; padding: 0; color: var(--ember); }
+.tick:hover { border-color: var(--ember); }
+.step.is-done .tick { border-color: var(--ember); }
+.tick svg path { stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset 320ms var(--ease-pen); }
+.step.is-done .tick svg path { stroke-dashoffset: 0; }
+.step-text { margin: 4px 0 0; color: var(--heading); font-weight: 500; }
+.step label { cursor: pointer; }
+.step-check { margin: 0; font-size: 0.88rem; color: var(--muted); }
+.step-check b { color: var(--body); font-weight: 600; }
+
+.prompt { margin-top: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; min-width: 0; }
+.prompt-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 8px 6px 12px; border-bottom: 1px solid var(--line); font-size: 0.75rem; color: var(--subtle); letter-spacing: 0.06em; text-transform: uppercase; }
+.prompt pre { margin: 0; padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.55; color: var(--heading); white-space: pre-wrap; word-break: break-word; max-height: 240px; overflow: auto; }
+.prompt.collapsed pre { max-height: 96px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+.prompt-actions { display: flex; gap: 6px; }
+
+.btn { font: inherit; font-weight: 600; font-size: 0.9rem; border-radius: 99px; padding: 9px 18px; cursor: pointer; border: 1.5px solid transparent; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; min-height: 44px; }
+.btn-primary { background: var(--ember); color: var(--on-ember); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-ghost { background: transparent; color: var(--heading); border-color: var(--line-strong); }
+.btn-ghost:hover { border-color: var(--heading); }
+.btn-small { font-size: 0.75rem; padding: 4px 10px; min-height: 30px; border-radius: 6px; font-weight: 600; background: transparent; color: var(--body); border: 1px solid var(--line-strong); cursor: pointer; font-family: var(--font-body); }
+.btn-small:hover { color: var(--heading); border-color: var(--heading); }
+.btn-link { background: none; border: 0; color: var(--subtle); font: inherit; font-size: 0.85rem; text-decoration: underline; cursor: pointer; padding: 0; text-align: left; }
+
+.done-when { display: flex; gap: 12px; align-items: flex-start; border-left: 3px solid var(--line-strong); padding: 4px 0 4px 14px; color: var(--body); font-size: 0.95rem; }
+.done-when.met { border-left-color: var(--ok); }
+.done-when strong { color: var(--heading); font-weight: 600; }
+
+.next { margin-top: 32px; display: grid; gap: 12px; }
+.next-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.next p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+/* start view */
+.hero { display: grid; gap: 16px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.hero h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -0.015em; max-width: 16ch; }
+.hero p { margin: 0; font-size: 1.12rem; max-width: 58ch; }
+.route-map { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin-top: 8px; }
+.route-map span { height: 8px; border-radius: 99px; background: var(--line); }
+.route-map span.done { background: var(--ember); }
+.route-map span.part { background: linear-gradient(90deg, var(--ember) var(--p, 0%), var(--line) var(--p, 0%)); }
+.route-map-legend { display: grid; grid-template-columns: 7fr 3fr; gap: 6px; margin-top: 6px; font-size: 0.78rem; color: var(--subtle); }
+.route-map-legend span { border-top: 1px solid var(--line); padding-top: 4px; }
+.start-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; padding-block: 28px; }
+.start-card { border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.start-card h3 { font-size: 1.1rem; }
+.start-card p { margin: 0; font-size: 0.93rem; }
+.cmd { display: flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 6px 6px 6px 10px; background: var(--panel); min-width: 0; }
+.cmd code { background: none; padding: 0; overflow-x: auto; white-space: nowrap; flex: 1; min-width: 0; }
+.how { padding-top: 8px; display: grid; gap: 10px; }
+.how ol { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 62ch; }
+
+.footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 0.82rem; color: var(--subtle); }
+.confirm { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--heading); color: var(--bg); padding: 10px 16px; border-radius: 99px; font-size: 0.88rem; font-weight: 500; transition: all 220ms var(--ease); z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* phone */
+.route-toggle { display: none; }
+@media (max-width: 880px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-block: 20px 64px; }
+  .route { position: static; max-height: none; border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .route[data-open="false"] .route-body { display: none; }
+  .route-toggle { display: flex; width: 100%; justify-content: space-between; align-items: center; background: none; border: 0; color: var(--heading); font: inherit; font-weight: 600; cursor: pointer; padding: 4px 2px; min-height: 40px; }
+  .route[data-open="true"] .route-toggle { margin-bottom: 8px; }
+  .meter { width: 72px; }
+  .overall .save { display: none; }
+  .brand-sub { display: none; }
+}
+@media (max-width: 420px) { .overall-num { display: none; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+</style>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#start" aria-label="Start page">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="2" y="14" width="5" height="10" rx="1.5" fill="var(--line-strong)"/><rect x="10.5" y="9" width="5" height="15" rx="1.5" fill="var(--muted)"/><rect x="19" y="2" width="5" height="22" rx="1.5" fill="var(--ember)"/></svg>
+      <span><span class="brand-name">AI Web Design &amp; Dev</span><span class="brand-sub">Course companion · The Vibe Marketing Lab</span></span>
+    </a>
+    <div class="overall">
+      <span class="save" id="save" data-state="loading" title="">Loading…</span>
+      <div class="meter" aria-hidden="true"><span id="overall-bar"></span></div>
+      <span class="overall-num" id="overall-num">0%</span>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="route" id="route" aria-label="Course route" data-open="false">
+    <button class="route-toggle" id="route-toggle" aria-expanded="false" aria-controls="route-body"><span id="route-toggle-label">Course route</span><span aria-hidden="true">▾</span></button>
+    <div class="route-body" id="route-body"></div>
+  </nav>
+  <main class="page" id="page" tabindex="-1"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const COURSE = {"days": [{"day": 1, "title": "See The Build", "goal": "Know what you're building and the tools behind it, and have Claude Code logged in to GitHub.", "lessons": [{"number": "1.1.", "tracker_title": "The Finished Site", "page_title": "The Finished Site: What You'll Build In This Course", "minutes": 3, "skool_url": null, "idea": "You'll build a fast, on-brand website that's set up to rank and that the owner can edit without you. This page shows the finished result so every setup step has a picture to hang on.", "steps": [{"id": "1.1-a", "text": "Read the six things the finished site will have, from design system to owner admin screen.", "prompt": null, "check": null}, {"id": "1.1-b", "text": "Skim the five course sections so you know the order: Setup, Plan, Build, Rank, Ship.", "prompt": null, "check": null}, {"id": "1.1-c", "text": "Check you've finished Build Your AI Brain, since nearly every prompt reads from that brain.", "prompt": null, "check": "Claude Code installed and your MarketingOS brain built"}, {"id": "1.1-d", "text": "Pick the site you'll build and write down its name and current web address.", "prompt": null, "check": "Name and web address written somewhere you'll see them"}], "done_when": "You've picked the site and written down its name and current web address."}, {"number": "1.2.", "tracker_title": "The Tech Stack", "page_title": "The Tech Stack Behind Your AI-Built Website", "minutes": null, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=d98417dfb14443a6b537dd403fd9b6a8", "idea": "Five tools build the site: Claude Code does the work, MarketingOS gives it the brand, EmDash is the site, GitHub saves every version and Cloudflare puts it online. Impeccable and Taste Skill stop it looking AI-made.", "steps": [{"id": "1.2-a", "text": "Learn the one job of each tool: Claude Code, MarketingOS, EmDash, GitHub and Cloudflare.", "prompt": null, "check": null}, {"id": "1.2-b", "text": "Install the Impeccable and Taste Skill design skills using the GitHub skills lesson.", "prompt": null, "check": "Both skills installed in Claude Code"}, {"id": "1.2-c", "text": "Review what it costs: a paid Claude plan, with hosting free within Cloudflare's allowances.", "prompt": null, "check": null}, {"id": "1.2-d", "text": "Confirm you can log in to every account on the action step list before opening 1.3.", "prompt": null, "check": "Claude Code, your brain, gh, Cloudflare and domain access all ready"}], "done_when": "Every account on the action step list exists and you can log in to it."}, {"number": "1.3.", "tracker_title": "Set Up GitHub", "page_title": "Log In To GitHub Through Claude Code", "minutes": 10, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=1a4d4e23e2cd4e7a9e1b7bd241d7ed35", "idea": "Connect Claude Code to your GitHub account so it can push your work and pull updates for you. Creating the project itself happens through MarketingOS, not in this lesson.", "steps": [{"id": "1.3-a", "text": "Open Claude Code in your MarketingOS workspace and paste the GitHub login prompt.", "prompt": "Help me connect GitHub to Claude Code so you can run Git commands for my projects.\n\n1. Check that Git and the GitHub CLI (gh) are installed. If either is missing, help me install it using the official instructions for my computer.\n2. Run gh auth status --hostname github.com and tell me which account is active. Do not display authentication tokens.\n3. If I am not logged in, run gh auth login --hostname github.com --git-protocol https --web. Wait while I complete the GitHub sign-in and authorise access in my browser. If the wrong account is active, help me select the account I intend to use.\n4. Run gh auth setup-git --hostname github.com so Git can use this login for HTTPS push and pull.\n5. Run gh auth status --hostname github.com again and confirm the active account and authentication status.\n\nThis step is authentication only. Do not create a project, initialise a repo, create a GitHub repository, or push or pull any files. We will create the separate project through MarketingOS.", "check": null}, {"id": "1.3-b", "text": "If a browser sign-in opens, check it's the right GitHub account and approve access yourself.", "prompt": null, "check": null}, {"id": "1.3-c", "text": "Confirm Claude reports the intended account and Git set up to use that login.", "prompt": null, "check": "Claude confirms the active account and authentication status"}], "done_when": "Claude reports you're signed in to the correct GitHub account."}]}, {"day": 2, "title": "Connect Cloudflare And Brain", "goal": "Connect Cloudflare to Claude Code and have a MarketingOS brain ready for this business.", "lessons": [{"number": "1.4.", "tracker_title": "Set Up Cloudflare", "page_title": "Connect Cloudflare To Claude Code", "minutes": 10, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=f37f211495b34fb2afbc36f23489bf56", "idea": "Give Claude Code a scoped Cloudflare API token once, saved in your site's .env, so it can run Cloudflare commands for you. Use a token for this project, not your account's Global API Key.", "steps": [{"id": "1.4-a", "text": "Ask Claude to prepare the folder: check Wrangler, add empty .env entries and confirm .env is ignored.", "prompt": "Prepare this website folder for Cloudflare authentication.\n\nCheck Node.js and npm are available, then run npx wrangler --version. If a prerequisite is missing, explain it and help me install it.\n\nPreserve my existing .env and every value in it. Add empty entries for CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID only if they are missing. Do not invent credentials or replace existing ones.\n\nMake sure .env and .env.* are ignored by git. Run git check-ignore -v .env and git ls-files -- .env. If .env is already tracked, stop and explain what needs fixing before I add a token.\n\nOpen .env in my local editor so I can fill it in. Never print its contents, token values or authentication headers in the chat or logs. Do not deploy or change any Cloudflare resources yet.", "check": "An editable .env, a Wrangler version, .env ignored and untracked"}, {"id": "1.4-b", "text": "Create a token from the Edit Cloudflare Workers template for this account, adding Account > D1 > Edit.", "prompt": null, "check": "Cloudflare shows the token secret once"}, {"id": "1.4-c", "text": "Paste the token and account ID into .env in your editor, never into the chat.", "prompt": null, "check": "Both values saved in .env"}, {"id": "1.4-d", "text": "Have Claude verify the token, the account and read access to Workers, D1, R2 and KV.", "prompt": "The Cloudflare values are in .env. Verify the connection from this website folder.\n\n1. Read the credentials locally without displaying them. Do not echo them, put them in command-line arguments, or include them in logs.\n2. Verify this user API token against Cloudflare’s /client/v4/user/tokens/verify endpoint, sending the token only in the Authorization header to api.cloudflare.com. Report only whether it is active.\n3. Run npx wrangler whoami using this project’s token, not a different saved OAuth login. Confirm which account is accessible and whether it matches CLOUDFLARE_ACCOUNT_ID. Do not print the token.\n4. Run read-only checks for Workers, D1, R2 and KV access in that account. Tell me what passed, what is unavailable and any permission or account setup that still needs attention. An active token alone does not prove every service is ready.\n5. Recheck that .env is ignored and untracked. Save only non-secret setup notes in docs/cloudflare-setup.md.\n\nDo not deploy, change DNS, create paid resources or modify the existing website during these checks.", "check": "An active token, the correct account and clear results per service"}, {"id": "1.4-e", "text": "Ask Claude to record the setup in the project instructions, with variable names only, never secrets.", "prompt": null, "check": null}], "done_when": "Token active and scoped to the right account, saved in an ignored .env, with service checks reported."}, {"number": "1.5.", "tracker_title": "Set Up MarketingOS", "page_title": "Set Up MarketingOS", "minutes": null, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=e8a9ebcd03d4424a8697b40447809fe0", "idea": "Claude needs the business's brand, audience, offer and voice before it builds anything. That lives in a MarketingOS brain you set up in Build Your AI Brain.", "steps": [{"id": "1.5-a", "text": "Go through Build Your AI Brain (MarketingOS) and set up a brain for this business.", "prompt": null, "check": null}, {"id": "1.5-b", "text": "Make sure the brain holds the business's brand, audience, offer and voice.", "prompt": null, "check": "Brand, audience, offer and voice are in the brain"}, {"id": "1.5-c", "text": "Come back to this course and continue the website build.", "prompt": null, "check": null}], "done_when": "A MarketingOS brain for this business, holding its brand, audience, offer and voice."}]}, {"day": 3, "title": "Run EmDash Locally", "goal": "Get EmDash running on your machine and confirm every login and key is safe.", "lessons": [{"number": "1.6.", "tracker_title": "Install EmDash", "page_title": "Install EmDash And Run Your Site Locally", "minutes": 12, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=94dad6ca7d824c33a45bc6026d8140aa", "idea": "EmDash is Cloudflare's open-source CMS built on Astro: the design is code Claude can change, and the owner edits content in an admin. You get it running on your own machine; nothing goes live until 5.2.", "steps": [{"id": "1.6-a", "text": "Check Node.js is 22.23.4 or later and npx wrangler --version works.", "prompt": null, "check": "node --version shows 22.23.4 or later"}, {"id": "1.6-b", "text": "Scaffold EmDash with the Marketing template and copy it into your existing website folder.", "prompt": "I already have a website folder and GitHub repo from lesson 1.3. Scaffold EmDash in a temporary sibling folder called gym-site-template using npm create emdash@latest. Choose Cloudflare Workers as the deploy target, the Marketing template, install dependencies, and say No to sandboxed plugins. When it finishes, copy the generated site files into my existing website folder. Preserve its .git history, origin, README and .gitignore rules; merge any conflicting files without overwriting blindly. Do not create a nested site folder. Confirm .env is ignored and tell me what is in the website folder.", "check": "Claude confirms .env is ignored and lists the folder"}, {"id": "1.6-c", "text": "Ask Claude to start the dev server and open the local URL in your browser.", "prompt": null, "check": "The template site with sample content at localhost:4321"}, {"id": "1.6-d", "text": "Create your admin account at /_emdash/admin with a passkey, keeping sample content ticked.", "prompt": null, "check": "You're in the EmDash dashboard"}, {"id": "1.6-e", "text": "Click through the admin menu: Pages, Posts, Media, Menus, Content Types and Settings.", "prompt": null, "check": null}, {"id": "1.6-f", "text": "Commit the EmDash files and push to your existing repo, without force-pushing.", "prompt": "Use the existing gym-site repo and origin from lesson 1.3. Check .env is ignored with git check-ignore -v .env before anything else. Show me git status and the changes first. Commit the EmDash files and push to the existing branch. Do not force-push or replace the repo history.", "check": "src/, package.json and wrangler.jsonc on GitHub, and no .env"}], "done_when": "The EmDash dashboard open on localhost, with the code pushed to GitHub and no .env in the repo."}, {"number": "1.7.", "tracker_title": "Authenticate Everything", "page_title": "Authenticate Everything: Log Your Tools In And Keep Your Keys Safe", "minutes": 10, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=bb115d22fd724c4a8f5c09b225f9c546", "idea": "Claude Code can only push code and deploy if GitHub and Cloudflare know it's you. Log both in once, keep every key in .env, and make sure that file never reaches GitHub.", "steps": [{"id": "1.7-a", "text": "Ask Claude to run gh auth status, and log in again if it says you're logged out.", "prompt": null, "check": "Logged in to github.com with your account name"}, {"id": "1.7-b", "text": "Recheck the Cloudflare token still works from the EmDash site folder.", "prompt": "Recheck the Cloudflare connection from this EmDash site folder using CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in .env. Do not print either credential or any authentication headers.\n\nVerify the user API token is active, run npx wrangler whoami with this project's token, and confirm the accessible account matches CLOUDFLARE_ACCOUNT_ID. Recheck read access to Workers, D1, R2 and KV. Report only the account and pass/fail results. Do not deploy or change resources.\n\nCheck that scaffolding preserved .env, that the file is ignored and untracked, and that Cloudflare management credentials are not loaded into the local application's runtime. Preserve the application-only .dev.vars setup from lesson 1.4.", "check": "Token active and the intended account accessible"}, {"id": "1.7-c", "text": "Make sure .env exists and git ignores it.", "prompt": "Make sure .env is listed in .gitignore, create an empty .env if there isn't one, then run git check-ignore -v .env and show me the output.", "check": "A line ending in .env showing the .gitignore rule"}, {"id": "1.7-d", "text": "Have Claude run git log --all --oneline -- .env to check it was never committed.", "prompt": null, "check": "Nothing printed"}, {"id": "1.7-e", "text": "Learn the leak plan: rotate the key first, put the new one in .env, untrack the file.", "prompt": null, "check": null}], "done_when": "All six action step checks pass, and you know the leak plan: rotate, replace, untrack."}]}, {"day": 4, "title": "Plan The Site", "goal": "Save site-plan.md with the brief, keywords and sitemap, every question answered.", "lessons": [{"number": "2.1.", "tracker_title": "Plan The Site", "page_title": "Plan The Site: The Website Brief, Keywords And Sitemap", "minutes": 15, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=021fa670705545dd95826b046ca4ea68", "idea": "Before Claude builds a page it needs to know who the site is for, what people search, and which page answers each search. That plan lives in one file, site-plan.md.", "steps": [{"id": "2.1-a", "text": "Copy the website brief template; Claude fills most of it from your brain.", "prompt": "# Website Brief: [Business name]\n\n## The business\n- What it does, in one sentence:\n- Where it operates (city, suburbs, or online only):\n- Current website (if any):\n\n## Who the site is for (from the avatar)\n- The ideal customer:\n- What they're stuck on when they land on the site:\n- What makes them pick up the phone or book:\n\n## The offer\n- The main thing we want visitors to do (book, call, buy, enquire):\n- The offer that gets them to do it (free consult, first visit discount, quote):\n\n## Voice\n- Three words for how the site should sound:\n- Words and phrases to avoid:\n\n## Proof we already have\n- Reviews, testimonials, case studies, awards, years in business:\n\n## Must-haves\n- Booking or contact method:\n- Pages the owner insists on:", "check": null}, {"id": "2.1-b", "text": "Collect search terms from autocomplete, People Also Ask, Search Console and the top 3 local competitors.", "prompt": null, "check": "A rough list of the words customers actually type"}, {"id": "2.1-c", "text": "Plan the sitemap around one rule: one page, one intent.", "prompt": null, "check": null}, {"id": "2.1-d", "text": "Have Claude write site-plan.md from your brain, the brief template and your research notes.", "prompt": "Read my MarketingOS brain at PATH-TO-MY-BRAIN (avatar, offer, voice, and any proof like reviews or case studies).\n\nThen write site-plan.md in the root of this site folder with three parts:\n\n1. Website Brief: fill in the template below using the brain. Mark anything the brain doesn't answer as QUESTION FOR ME instead of guessing.\n2. Keyword Research: group my notes below by search intent. For each group, give the main search term, related terms, and the People Also Ask questions that belong with it.\n3. Sitemap: one page per intent. For each page give the URL slug, the page title, the one search it targets, the main call to action, and which proof from the brain goes on it. Include home, one page per service, location pages only for areas I list as served, about, contact and one lead/offer page. Flag any two pages that would compete for the same search.\n\nDon't build any pages yet. Show me the plan and wait.\n\n[PASTE THE BRIEF TEMPLATE HERE]\n\nMy research notes:\n[PASTE YOUR AUTOCOMPLETE, PEOPLE ALSO ASK, SEARCH CONSOLE AND COMPETITOR NOTES HERE]", "check": "Claude shows the plan and waits, with gaps marked QUESTION FOR ME"}, {"id": "2.1-e", "text": "Answer every QUESTION FOR ME and cut or merge any page with no clear search behind it.", "prompt": null, "check": "Every page targets a different search; every service has its own page"}], "done_when": "site-plan.md saved in your site folder with every QUESTION FOR ME answered."}]}, {"day": 5, "title": "Build The Design System", "goal": "Get a /style-preview page that looks like the business, with no AI tells.", "lessons": [{"number": "3.1.", "tracker_title": "Build The Design System", "page_title": "Build The Design System Before Any Page", "minutes": 15, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=9e1b3b83688c4eeeb1d9cd2ae121e7dd", "idea": "A design system turns the brand into rules Claude follows: colours, type, spacing, corner radius and a few reusable parts. Build it once before the first page so every page looks like the same business.", "steps": [{"id": "3.1-a", "text": "Make a design-refs folder with the logo, 10 to 20 real photos and a few niche sites.", "prompt": null, "check": null}, {"id": "3.1-b", "text": "Install Impeccable and Taste Skill, then run /impeccable init once in your site folder.", "prompt": null, "check": null}, {"id": "3.1-c", "text": "Paste the design system prompt, approve the five-line direction, and let Claude build /style-preview.", "prompt": "Build the design system for this site before any pages.\n\nRead: my MarketingOS brain at PATH-TO-MY-BRAIN (brand, voice, avatar), site-plan.md, and everything in design-refs/ (logo, photos, reference screenshots and my notes on them). Use the Impeccable and Taste Skill skills.\n\n1. Propose the design direction in five lines: mood, colour palette with hex values, heading and body fonts, spacing ladder, corner radius. Explain each choice in one line tied to the brand or a reference. Wait for my OK.\n2. After I approve, put the tokens in src/styles/theme.css as overrides of src/styles/tokens.css (don't edit tokens.css), and change the fonts in astro.config.mjs. Restyle the existing blocks in src/components/blocks/ through the tokens; don't hard-code colours or sizes in components.\n3. Build a page at /style-preview that shows every colour swatch with its name, every text size, the buttons in each state, a card, a section heading, the header and the footer, using one of the real photos.\n4. Check text contrast meets WCAG AA and tell me anything that fails.\n5. Start the dev server and give me the URL.\n\nAvoid: one font for everything, purple or blue-to-purple gradients, cards inside cards, emoji as icons, and centring every section.", "check": "A /style-preview page with swatches, text sizes, buttons, card, header and footer"}, {"id": "3.1-d", "text": "Check /style-preview on laptop and phone for the five AI tells and get them fixed.", "prompt": null, "check": "No single font, purple gradients, nested cards, emoji icons or all-centred sections"}, {"id": "3.1-e", "text": "Run /impeccable critique the style preview page, fix what it ranks highest, then commit and push.", "prompt": null, "check": null}], "done_when": "/style-preview looks like the business on laptop and phone with no AI tells, committed and pushed."}]}, {"day": 6, "title": "Build The Pages", "goal": "Build the homepage and the rest of your planned pages, checked on a phone and pushed.", "lessons": [{"number": "3.2.", "tracker_title": "Wireframe To Live Build", "page_title": "Wireframe To Live Build: Turn Your Site Plan Into Real Pages", "minutes": 20, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=c7f0f6b24d1c46359e1b1bbd618c213a", "idea": "Each page starts as a plain list of sections, and Claude builds that list straight into EmDash with your design system. You judge the design in the browser, not in a mockup.", "steps": [{"id": "3.2-a", "text": "Have Claude wireframe the homepage from site-plan.md as a numbered list of sections.", "prompt": "Read site-plan.md from my site plan (lesson 2.1) and my MarketingOS brain.\nWrite a wireframe for the homepage as a numbered list of sections, top to\nbottom. For each section give: the EmDash block it maps to, the one job it\ndoes for the visitor, and the content it needs (headline, photo, reviews,\netc.). One main call to action for the whole page. Save it to\ndocs/wireframes/home.md and show it to me. Don't build anything yet.", "check": "docs/wireframes/home.md, every section with a job, one main call to action"}, {"id": "3.2-b", "text": "Start the site locally with npm run dev and leave the terminal running.", "prompt": null, "check": "The site loads at http://localhost:4321"}, {"id": "3.2-c", "text": "Have Claude build the homepage from the wireframe using your design tokens and draft copy.", "prompt": "Build the homepage from docs/wireframes/home.md using my design system\nfrom lesson 3.1. Rules:\n- Use the existing EmDash blocks where they fit. If a section needs a\n  new block type, add it properly with its own component.\n- Style through the design tokens and the block components, never\n  one-off inline styles or hard-coded colours.\n- Fill each block with draft copy written from my MarketingOS brain, at\n  realistic length. No lorem ipsum.\n- Tell me which files you changed and how you added the page content.", "check": "The new homepage appears when you refresh localhost:4321"}, {"id": "3.2-d", "text": "Review it at full width and 390 pixels wide, run Impeccable's critique and fix the big issues.", "prompt": null, "check": null}, {"id": "3.2-e", "text": "Commit and push the homepage, then repeat the loop for every page in your site plan.", "prompt": null, "check": "The commit shows in your GitHub repo"}], "done_when": "Homepage built, checked at phone width and pushed, with the rest of the planned pages built the same way."}]}, {"day": 7, "title": "Phone Test And Feedback", "goal": "Use your site on your phone like a customer, log what's broken, and show it to someone for feedback.", "lessons": [{"number": "Day 7", "tracker_title": "Phone Test And Feedback", "page_title": "Phone Test And Feedback", "minutes": null, "skool_url": null, "no_video": true, "idea": "The lessons keep the site local until 5.2. Push To Production, so today's check runs on your machine and phone, not a live URL.", "steps": [{"id": "d7-a", "text": "Restart the site with npm run dev -- --host and open the network address on your phone.", "prompt": null, "check": "The site loads on a phone on the same wifi"}, {"id": "d7-b", "text": "Use the site like a customer: tap every button and menu item with your thumb.", "prompt": null, "check": null}, {"id": "d7-c", "text": "Read the homepage top to bottom and ask if it makes you want to take the main action.", "prompt": null, "check": "The homepage makes you want to take the main action"}, {"id": "d7-d", "text": "Add anything fiddly or broken to docs/qa-issues.md.", "prompt": null, "check": null}, {"id": "d7-e", "text": "Share your screen and show the client the pages running locally for their feedback.", "prompt": null, "check": null}], "done_when": "You've used every page on your phone and logged what needs fixing. Draws on lessons 3.2, 3.4."}], "source_lessons": ["3.2.", "3.4."], "note": "The lessons keep the site local until 5.2. Push To Production, so today's check runs on your machine and phone, not a live URL.", "steps": [{"id": "d7-a", "text": "Restart the site with npm run dev -- --host and open the network address on your phone.", "prompt": null, "check": "The site loads on a phone on the same wifi"}, {"id": "d7-b", "text": "Use the site like a customer: tap every button and menu item with your thumb.", "prompt": null, "check": null}, {"id": "d7-c", "text": "Read the homepage top to bottom and ask if it makes you want to take the main action.", "prompt": null, "check": "The homepage makes you want to take the main action"}, {"id": "d7-d", "text": "Add anything fiddly or broken to docs/qa-issues.md.", "prompt": null, "check": null}, {"id": "d7-e", "text": "Share your screen and show the client the pages running locally for their feedback.", "prompt": null, "check": null}]}], "stages": [{"stage": "Build", "goal": "Put the business's real content in, fix what's broken, and give visitors a way to get in touch.", "lessons": [{"number": "3.3.", "tracker_title": "Real Copy And Photos", "page_title": "Real Copy And Photos: Put The Business On The Page", "minutes": 12, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=ba64628b0a3445c6bc8c20a182f6b0d7", "idea": "Swap the draft words and stand-in images for the business's real reviews, quotes, FAQs and photos before you polish. Real content breaks layouts that draft text hides, so it goes in first.", "steps": [{"id": "3.3-a", "text": "Gather a content-pack folder: reviews, owner quotes, real FAQs, facts and the business's own photos.", "prompt": null, "check": null}, {"id": "3.3-b", "text": "Have Claude rewrite every page around the real material, quoting reviews word for word.", "prompt": "Read everything in content-pack/ and my MarketingOS brain (voice, avatar,\noffer). Rewrite the copy on every page so it's built around this real\nmaterial. Rules:\n- Quote reviews and owner quotes word for word. Never edit a review.\n- Build the FAQ blocks from the real customer questions.\n- Use only facts from content-pack/. If something is missing, list it\n  for me instead of making it up.\n- Write in the voice from my MarketingOS brain.\nShow me the changes page by page before saving them.", "check": "Changes shown page by page, plus a list of missing facts"}, {"id": "3.3-c", "text": "Run the humanizer skill over all page copy, leaving quotes and reviews untouched.", "prompt": null, "check": null}, {"id": "3.3-d", "text": "Resize photos to web sizes under 300 KB, name them descriptively, and upload them to Media.", "prompt": null, "check": "Photos in the media library, with alt text on each block image"}, {"id": "3.3-e", "text": "Have Claude move any hard-coded text, prices, hours or image paths into the admin, then commit.", "prompt": "Search the components and layouts for any page text, prices, opening\nhours or image paths written straight into the code. Move each one\ninto the EmDash content or site settings so it can be edited in the\nadmin. List what you moved.", "check": "A list of what Claude moved"}], "done_when": "Every page carries real content and photos from the EmDash admin, with the hard-coding check run and committed."}, {"number": "3.4.", "tracker_title": "Iterate And Fix", "page_title": "Iterate And Fix: Check Every Page Before You Ship", "minutes": 15, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=1e02394ee7b6465da5fd978e33fd7163", "idea": "Run one QA loop again and again: check, list, fix one issue, commit, re-check. List everything before fixing so each change stays small and easy to undo.", "steps": [{"id": "3.4-a", "text": "Save the QA checklist as docs/qa-checklist.md in your site folder.", "prompt": null, "check": null}, {"id": "3.4-b", "text": "Have Claude run a QA pass and list every issue by severity, fixing nothing yet.", "prompt": "Run a QA pass on my site at http://localhost:4321 using\ndocs/qa-checklist.md. Visit every page and every link (use a headless\nbrowser if one is available, otherwise curl). Check each page at 360,\n390, 768 and 1280 pixels wide if you can.\n\nDo NOT fix anything yet. Give me one list of every issue you find,\nsorted into High (broken or blocks a visitor), Medium (looks wrong or\nconfusing) and Low (polish). For each issue give the page, what's\nwrong, and the fix you'd make.", "check": "One list sorted High, Medium and Low, saved to docs/qa-issues.md"}, {"id": "3.4-c", "text": "Use the site on your phone like a customer and add what you find to the list.", "prompt": null, "check": null}, {"id": "3.4-d", "text": "Run Impeccable critique and audit, Lighthouse on Mobile, and the Tab key test on each main page.", "prompt": null, "check": "You can always see which link or button is selected"}, {"id": "3.4-e", "text": "Fix issues one at a time, High first, each in its own commit.", "prompt": "Fix issue 1 from docs/qa-issues.md only. Then show me what changed,\ncommit it with a message that names the issue, push to GitHub, and\nmark it done in the list.", "check": "Each fix checked in the browser and marked done in the list"}], "done_when": "Every checklist box ticked for every page, and no High or Medium issues left."}, {"number": "3.5.", "tracker_title": "Forms And Booking", "page_title": "Add A Form Or Booking Tool So Your Site Captures Leads", "minutes": 15, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=87d446e1691f41eb85071d62c07b1f79", "idea": "Every site needs one way for a customer to put their hand up. Pick the simplest of three: an EmDash form, the booking tool the business already uses, or an API connection.", "steps": [{"id": "3.5-a", "text": "Pick the simplest option that fits: contact form, booking embed or API connection.", "prompt": null, "check": null}, {"id": "3.5-b", "text": "Build the form or embed the booking tool with the matching prompt.", "prompt": "Install the EmDash forms plugin (@emdash-cms/plugin-forms) on this site. Read the plugin's source and README in node_modules first and follow its setup exactly. Then help me build one form called \"Enquiry\" with name, email, phone (optional) and message fields, and put it on the Contact page. Show me where the form and its submissions appear in the EmDash admin.", "check": "Forms and Submissions screens appear in the EmDash admin"}, {"id": "3.5-c", "text": "Turn on spam protection: honeypot while testing locally, Turnstile before launch.", "prompt": null, "check": null}, {"id": "3.5-d", "text": "Send submissions where the owner already looks, and set up an email provider for production.", "prompt": "Check how this EmDash site sends email. Read the EmDash email setup docs, tell me which provider is active, and help me set up one for production (SMTP or the Cloudflare Email plugin), with any passwords in .env.", "check": "Claude tells you which email provider is active"}, {"id": "3.5-e", "text": "Fill in the form on your phone the way a customer would.", "prompt": null, "check": "Confirmation shows, entry in Submissions, email arrives, fake email rejected"}], "done_when": "One test enquiry found where the owner will look, with spam protection on.", "optional": true}]}, {"stage": "Rank", "goal": "Make every page ready for Google and AI search, and set up the tools that measure it.", "lessons": [{"number": "4.1.", "tracker_title": "The SEO Checklist", "page_title": "The SEO Checklist For Your AI-Built Website", "minutes": 15, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=1e796823004445c6aa8c989470fa4355", "idea": "SEO goes in while you build, not after launch. EmDash covers about half the checklist out of the box, and you check the rest page by page and site-wide.", "steps": [{"id": "4.1-a", "text": "Open /sitemap.xml and /robots.txt on your local site.", "prompt": null, "check": "Both addresses load on your local site"}, {"id": "4.1-b", "text": "Have Claude audit every page against the per-page, site-wide and AI checklists, changing nothing yet.", "prompt": "Audit every page of this EmDash site against the SEO checklist below. Read docs.emdashcms.com/guides/seo first so you know what EmDash already generates. Check the local site at http://localhost:4321, including /sitemap.xml and /robots.txt.\n\nPer page: unique title tag, unique meta description under 160 characters, exactly one H1, headings in order, at least two internal links with descriptive text, alt text on every meaningful image, image file sizes, not hidden from search engines.\n\nSite-wide: sitemap lists every page I want found, robots.txt doesn't block them, canonical URLs, Organization or LocalBusiness schema with details matching the page (check Google Search Central for required fields), Open Graph image, a working 404 page, no broken links.\n\nAI pass: FAQ section present, \"Disallow AI training\" setting, robots.txt rules for AI crawlers.\n\nGive me a fix list grouped by page, with what's wrong and the fix. Don't change anything yet.", "check": "A fix list grouped by page"}, {"id": "4.1-c", "text": "Cross off fixes you disagree with, reply \"apply the fixes\", review locally and commit.", "prompt": null, "check": null}, {"id": "4.1-d", "text": "Check Disallow AI training is off in EmDash and Search is allowed in Cloudflare's AI crawler policies.", "prompt": null, "check": null}], "done_when": "The audit fix list worked through, both checklists ticked and both AI crawler settings checked."}, {"number": "4.2.", "tracker_title": "Hook Up Analytics", "page_title": "Hook Up GA4, Search Console And Cloudflare Analytics", "minutes": 10, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=110442e92c204808b3897f654ceab5f8", "idea": "Three free tools tell you if the site is working: GA4 for what visitors do, Search Console for how Google finds the pages, and Cloudflare Web Analytics for a simple visit count. Set them up now; data flows after launch.", "steps": [{"id": "4.2-a", "text": "Create a GA4 property and web stream for the real domain, then copy the Measurement ID.", "prompt": null, "check": "A Measurement ID starting with G-"}, {"id": "4.2-b", "text": "Have Claude add the GA4 tag for production only, plus a generate_lead event on successful submit.", "prompt": "Add the GA4 Google tag (gtag.js) with Measurement ID G-XXXXXXXXXX to the site's base layout, straight after the opening <head>. Only load it in production builds, never on localhost, so my testing doesn't count as visits.\n\nThen track the main conversion: when the enquiry form from lesson 3.5 submits successfully, send a GA4 event called generate_lead. Fire it only after a successful submit, not on the button click. If the site uses a booking embed instead, send generate_lead when a booking is confirmed, or on the Book button click if the tool doesn't report bookings. Show me the code you changed.", "check": "Claude shows you the code it changed"}, {"id": "4.2-c", "text": "Add a Search Console Domain property and verify it with a TXT record in Cloudflare DNS.", "prompt": null, "check": "The property shows as verified"}, {"id": "4.2-d", "text": "Add your domain in Cloudflare Web Analytics.", "prompt": null, "check": null}, {"id": "4.2-e", "text": "After 5.2, check each tool receives data, then star generate_lead as a key event.", "prompt": null, "check": "Your visit shows in GA4 Realtime within a minute or so"}], "done_when": "All three tools set up, the tag and event committed, and a note to run the checks after 5.2."}]}, {"stage": "Ship", "goal": "Keep the old site's rankings, launch on the real domain, and hand the site to the owner.", "lessons": [{"number": "5.1.", "tracker_title": "Keep Your Rankings When You Switch", "page_title": "Keep Your Google Rankings When You Switch Websites", "minutes": 10, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=d4ce65b4fd794cfa8ffbeaa23903ea33", "idea": "When a new site replaces an old one, every old page address needs a 301 redirect to its closest new page. No old site? Skip straight to 5.2.", "steps": [{"id": "5.1-a", "text": "Export every old URL from the old sitemap, Search Console and a crawl into a redirects/ folder.", "prompt": null, "check": null}, {"id": "5.1-b", "text": "Have Claude draft redirects/redirect-map.csv, then decide every row marked CHECK yourself.", "prompt": "Read every export in the redirects/ folder and build one de-duplicated list of the old site's URLs. Then list the pages on my local EmDash site. Draft redirects/redirect-map.csv with columns old_path,new_path,status,notes, matching each old URL to the closest new page. Never map to the homepage unless the old page was the homepage. Mark anything you're unsure of with \"CHECK\" in notes so I can decide.", "check": "Every old URL matched to its closest new page, not the homepage"}, {"id": "5.1-c", "text": "Protect your top 10 pages: keep their content and title tags close to the old ones.", "prompt": null, "check": null}, {"id": "5.1-d", "text": "Add every 301 row as a redirect in your local EmDash site, through the admin or the API.", "prompt": null, "check": "Every rule listed in EmDash matches the CSV"}, {"id": "5.1-e", "text": "Test every redirect and fix until each old path passes.", "prompt": "For every row in redirects/redirect-map.csv, run curl -I against http://localhost:4321 plus the old path, with and without a trailing slash. Report any row that doesn't return a 301 with the right Location, any redirect chain, and any old path that returns 404. Fix what you can and show me the rest.", "check": "One 301 per old path, pointing straight at the new page"}], "done_when": "redirects/redirect-map.csv built, rules added locally, and every row passes the test.", "optional": true}, {"number": "5.2.", "tracker_title": "Push To Production", "page_title": "Push Your EmDash Site To Production", "minutes": 10, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=abca9b6fef87442da609fbe5c4b00bc4", "idea": "Launch day: deploy to Cloudflare Workers, attach the domain, create your admin on that domain, move the content across and switch off staging. Work in order, in one sitting.", "steps": [{"id": "5.2-a", "text": "Export your current DNS records to launch/old-dns-records.txt as your way back.", "prompt": null, "check": null}, {"id": "5.2-b", "text": "Have Claude add your domain route to wrangler.jsonc and run npm run deploy.", "prompt": "In my EmDash site, add a route to wrangler.jsonc with pattern example.com and custom_domain true. Then run npm run deploy and show me the output. If Cloudflare refuses the custom domain because a record already exists for example.com, tell me which record it is and stop. Never touch MX or TXT records.", "check": "Deploy output shown, with no existing record blocking the domain"}, {"id": "5.2-c", "text": "Create your admin at your domain's /_emdash/admin with sample content unticked, never on workers.dev.", "prompt": null, "check": "You're the administrator on the live domain"}, {"id": "5.2-d", "text": "Export the site package from local Settings > Transfer and import it in the live admin.", "prompt": null, "check": "Content, photos, menus and redirects are on the live site"}, {"id": "5.2-e", "text": "Select Go live in Settings > General, then redirect www to the root domain.", "prompt": null, "check": "Site Status shows live, not staging"}, {"id": "5.2-f", "text": "Run the launch test, submit the sitemap, and update your Google Business Profile and social links.", "prompt": "Test https://example.com as a launch check. Run curl -I on every old path in redirects/redirect-map.csv and confirm each returns 301 to the right page. Confirm https://www.example.com redirects to https://example.com. Fetch /sitemap.xml and /robots.txt and show me both. Check the homepage HTML has no noindex robots meta tag. Report anything that fails.", "check": "Every old URL returns a 301 to the right page"}], "done_when": "Every line of the launch checklist is ticked."}, {"number": "5.3.", "tracker_title": "Hand It Over", "page_title": "Hand Your Website Over To The Owner", "minutes": 10, "skool_url": "https://www.skool.com/the-vibe-marketing-lab/classroom/b65673c2?md=964d7fb5aae14b1f9f1707011b8daf03", "idea": "The owner should be able to run the site without calling you for every change. Invite them as an Editor, teach three edits, give them a one-page doc, and keep every account in their name.", "steps": [{"id": "5.3-a", "text": "Invite the owner as an Editor from Users, and have them add a backup passkey device.", "prompt": null, "check": null}, {"id": "5.3-b", "text": "On a 30-minute call, have the owner edit a page, add a post and swap a photo.", "prompt": null, "check": "Each change shows on the live page"}, {"id": "5.3-c", "text": "Tell the owner what they never touch: Settings, Plugins, Users, Redirects, DNS and the code.", "prompt": null, "check": null}, {"id": "5.3-d", "text": "Have Claude write the one-page handover doc, fill the gaps and send it as a PDF.", "prompt": "Write a one-page handover doc for the owner of this website, in plain English with no jargon. Use these headings: Your Logins, Where Everything Lives, How To Make The Three Common Edits, Never Touch, Who To Call. Fill in what you can find in this project (domain, admin URL, GitHub repo, Cloudflare Worker name, analytics) and leave [FILL IN] for anything you can't. Never include passwords, API keys or the contents of .env. Save it as handover/handover-doc.md.", "check": "handover/handover-doc.md saved, with no passwords or keys"}, {"id": "5.3-e", "text": "Put the domain, Cloudflare, GitHub and Google accounts in the owner's name, with you as a user.", "prompt": null, "check": null}, {"id": "5.3-f", "text": "Book 30, 60 and 90 day check-ins, then post your live site in Wins.", "prompt": null, "check": null}], "done_when": "Owner invited as an Editor, handover doc sent, and three check-ins booked."}]}]};
+const REPO_URL = "https://github.com/the-vibe-marketing-lab/tvml-ai-web-design";
+const COMMUNITY_URL = "https://www.skool.com/the-vibe-marketing-lab";
+const LOCAL_KEY = "tvml-aiwd-progress-v1";
+
+/* ---------- units ---------- */
+const UNITS = [];
+COURSE.days.forEach(d => UNITS.push({ id: "day-" + d.day, kind: "day", short: "Day " + d.day, title: d.title, goal: d.goal, lessons: d.lessons, num: String(d.day) }));
+COURSE.stages.forEach((s, i) => UNITS.push({ id: s.stage.toLowerCase(), kind: "stage", short: s.stage, title: s.stage, goal: s.goal, lessons: s.lessons, num: ["B", "R", "S"][i] || s.stage[0] }));
+const unitById = Object.fromEntries(UNITS.map(u => [u.id, u]));
+const stepsOf = u => u.lessons.flatMap(l => l.steps.map(s => s.id));
+const requiredStepsOf = u => u.lessons.filter(l => !l.optional).flatMap(l => l.steps.map(s => s.id));
+
+/* ---------- state ---------- */
+let done = {};
+let mode = "loading"; // loading | account | local
+let docRef = null;
+let writing = false, pendingWrite = false, writeTimer = null;
+
+function readLocal() { try { const v = JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}"); return v && typeof v === "object" ? (v.done || {}) : {}; } catch (e) { return {}; } }
+function writeLocal() { try { localStorage.setItem(LOCAL_KEY, JSON.stringify({ done, updatedAt: Date.now() })); } catch (e) {} }
+
+function setSave(state) {
+  mode = state;
+  const el = document.getElementById("save");
+  el.dataset.state = state;
+  el.textContent = state === "account" ? "Saved to your account" : state === "local" ? "Saved on this device" : "Loading…";
+  el.title = state === "account" ? "Your ticks follow you to any device where you're signed in to Claude." :
+    state === "local" ? "Your ticks are kept in this browser only. Sign in to claude.ai to keep them across devices." : "";
+}
+
+function scheduleSave() {
+  writeLocal();
+  if (mode !== "account" || !docRef) return;
+  clearTimeout(writeTimer);
+  writeTimer = setTimeout(flush, 600);
+}
+async function flush() {
+  writeTimer = null;
+  if (writing) { pendingWrite = true; return; }
+  writing = true;
+  try { await docRef.set({ done: { ...done }, updatedAt: Date.now() }); }
+  catch (e) { setSave("local"); toast("Couldn't save to your account. Your ticks are kept on this device."); }
+  writing = false;
+  if (pendingWrite) { pendingWrite = false; flush(); }
+}
+
+async function connect() {
+  done = readLocal();
+  render();
+  let settled = false;
+  const fallback = () => { if (!settled) { settled = true; setSave("local"); } };
+  const timer = setTimeout(fallback, 10000);
+  try {
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    const id = user ? await user.id() : null;
+    if (!db || !id) { clearTimeout(timer); fallback(); return; }
+    docRef = db.doc("data/users/" + id + "/progress");
+    let first = true;
+    docRef.onSnapshot(snap => {
+      if (!snap.fromCache) clearTimeout(timer);
+      const data = snap.exists ? snap.data() : null;
+      if (first) {
+        first = false;
+        settled = true;
+        setSave("account");
+        const remote = data && data.done ? { ...data.done } : {};
+        const local = readLocal();
+        const merged = { ...remote };
+        let added = false;
+        for (const k in local) if (local[k] && !merged[k]) { merged[k] = true; added = true; }
+        done = merged;
+        writeLocal();
+        if (added) flush();
+        render();
+        return;
+      }
+      if (data && data.done && !writing && !writeTimer) { done = { ...data.done }; writeLocal(); render(); }
+    }, () => { clearTimeout(timer); settled = true; setSave("local"); });
+  } catch (e) { clearTimeout(timer); fallback(); }
+}
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const inline = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+function countDone(ids) { return ids.filter(id => done[id]).length; }
+function unitState(u) {
+  const req = requiredStepsOf(u), n = countDone(req);
+  if (req.length && n === req.length) return "done";
+  return n > 0 ? "started" : "todo";
+}
+function firstUnfinished() { return UNITS.find(u => unitState(u) !== "done") || null; }
+function isAhead(u) { const f = firstUnfinished(); return f && UNITS.indexOf(u) > UNITS.indexOf(f); }
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("show"), 2200); }
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast("Copied. Paste it into Claude Code."); }
+  catch (e) { toast("Copy didn't work here. Select the text and copy it."); }
+}
+
+/* ---------- views ---------- */
+function currentId() { const h = location.hash.replace("#", ""); return unitById[h] ? h : "start"; }
+
+function renderRoute() {
+  const cur = currentId();
+  const group = (label, kind) => `<h2>${label}</h2><ol>` + UNITS.filter(u => u.kind === kind).map(u => {
+    const st = unitState(u), ids = requiredStepsOf(u);
+    const state = st === "done" ? "done" : isAhead(u) ? "ahead" : "open";
+    const mark = st === "done" ? `<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>` : esc(u.num);
+    const label = u.kind === "day" ? `${esc(u.short)}: ${esc(u.title)}` : esc(u.title);
+    return `<li><a href="#${u.id}" data-state="${state}" ${cur === u.id ? 'aria-current="page"' : ""}>
+      <span class="mark">${mark}</span><span class="label">${label}</span><span class="count">${countDone(ids)}/${ids.length}</span></a></li>`;
+  }).join("") + `</ol>`;
+  $("#route-body").innerHTML =
+    `<ol><li><a href="#start" ${cur === "start" ? 'aria-current="page"' : ""}><span class="mark">★</span><span class="label">Start here</span><span class="count"></span></a></li></ol>` +
+    group("Launch week", "day") + group("After launch", "stage") +
+    `<div class="route-extra"><a href="${REPO_URL}" target="_blank" rel="noopener">Starter kit on GitHub ↗</a><a href="${COMMUNITY_URL}" target="_blank" rel="noopener">Ask in the community ↗</a></div>`;
+  const u = unitById[cur];
+  $("#route-toggle-label").textContent = u ? (u.kind === "day" ? `${u.short} of 7: ${u.title}` : u.title + " stage") : "Course route";
+}
+
+function renderOverall() {
+  const all = UNITS.flatMap(requiredStepsOf), n = countDone(all), pct = all.length ? Math.round(n / all.length * 100) : 0;
+  $("#overall-bar").style.width = pct + "%";
+  $("#overall-num").textContent = pct + "%";
+}
+
+function promptBlock(p, id) {
+  const long = p.split("\n").length > 6 || p.length > 420;
+  return `<div class="prompt ${long ? "collapsed" : ""}" id="pr-${esc(id)}">
+    <div class="prompt-bar"><span>Prompt for Claude Code</span><span class="prompt-actions">
+      ${long ? `<button class="btn-small" data-expand="${esc(id)}" aria-expanded="false">Show all</button>` : ""}
+      <button class="btn-small" data-copy="${esc(id)}">Copy</button></span></div>
+    <pre>${esc(p)}</pre></div>`;
+}
+
+function lessonHtml(l) {
+  const ids = l.steps.map(s => s.id), all = ids.length && countDone(ids) === ids.length;
+  const watch = l.no_video ? "" : l.skool_url ? `<a class="watch" href="${esc(l.skool_url)}" target="_blank" rel="noopener">Open the lesson on Skool ↗</a>`
+    : `<span class="watch pending">Lesson link coming soon</span>`;
+  return `<section class="lesson" aria-labelledby="h-${esc(l.number)}">
+    <div class="lesson-head">
+      <div class="lesson-meta"><span class="lesson-num">${esc(l.number)}</span>${l.minutes ? `<span>${l.minutes} min video</span>` : ""}${l.optional ? `<span class="tag">Optional</span>` : ""}</div>
+      <h2 id="h-${esc(l.number)}">${esc(l.page_title || l.tracker_title)}</h2>
+    </div>
+    <p class="idea">${inline(l.idea)}</p>
+    ${watch ? `<div>${watch}</div>` : ""}
+    <ol class="steps">${l.steps.map(s => `
+      <li class="step ${done[s.id] ? "is-done" : ""}" data-step="${esc(s.id)}">
+        <button class="tick" role="checkbox" aria-checked="${done[s.id] ? "true" : "false"}" aria-labelledby="t-${esc(s.id)}" data-tick="${esc(s.id)}">
+          <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10.5l4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <p class="step-text" id="t-${esc(s.id)}"><label data-tick="${esc(s.id)}">${inline(s.text)}</label></p>
+        ${s.check ? `<p class="step-check"><b>You should see:</b> ${inline(s.check)}</p>` : ""}
+        ${s.prompt ? promptBlock(s.prompt, s.id) : ""}
+      </li>`).join("")}
+    </ol>
+    <div class="done-when ${all ? "met" : ""}"><span aria-hidden="true">${all ? "✓" : "◎"}</span><span><strong>Done when:</strong> ${inline(l.done_when)}</span></div>
+  </section>`;
+}
+
+function renderUnit(u) {
+  const ids = requiredStepsOf(u), n = countDone(ids), pct = ids.length ? Math.round(n / ids.length * 100) : 0;
+  const idx = UNITS.indexOf(u), prev = UNITS[idx - 1], next = UNITS[idx + 1];
+  const f = firstUnfinished();
+  const ahead = isAhead(u);
+  const eyebrow = u.kind === "day" ? `Launch week · Day ${u.num} of 7` : `After launch · ${u.title} stage`;
+  const notice = ahead && f ? `<div class="notice"><p>You haven't finished <strong>${esc(f.kind === "day" ? f.short : f.title)}</strong> yet. The steps here assume it's done, so things may not work as shown.</p>
+      <a class="btn btn-ghost" href="#${f.id}">Back to ${esc(f.kind === "day" ? f.short : f.title)}</a></div>` : "";
+  const left = ids.length - n;
+  let nextHtml = "";
+  if (next) {
+    const label = next.kind === "day" ? `${next.short}: ${next.title}` : `${next.title} stage`;
+    nextHtml = left === 0
+      ? `<div class="next"><p>${u.kind === "day" && u.num === "7" ? "Launch week done. Your site is built and running. Next you fill it with real content, make it findable, then put it live on your domain." : "All steps ticked. On to the next one."}</p>
+          <div class="next-row"><a class="btn btn-primary" href="#${next.id}">Start ${esc(label)} →</a></div></div>`
+      : `<div class="next"><p>${left} step${left === 1 ? "" : "s"} left on this page. Tick them off before moving on, so the next page starts from a working setup.</p>
+          <div class="next-row"><button class="btn btn-primary" data-jump="first-open">Go to the next open step</button><a class="btn btn-ghost" href="#${next.id}">Skip ahead to ${esc(label)}</a></div></div>`;
+  } else {
+    nextHtml = left === 0 ? `<div class="next"><p>That's the whole course. Post your live URL in the community so we can see it.</p><div class="next-row"><a class="btn btn-primary" href="${COMMUNITY_URL}" target="_blank" rel="noopener">Share your site ↗</a></div></div>`
+      : `<div class="next"><p>${left} step${left === 1 ? "" : "s"} left.</p><div class="next-row"><button class="btn btn-primary" data-jump="first-open">Go to the next open step</button></div></div>`;
+  }
+  $("#page").innerHTML = `
+    <div class="page-head">
+      <span class="eyebrow">${eyebrow}</span>
+      <h1>${esc(u.title)}</h1>
+      <p class="goal">${inline(u.goal)}</p>
+      <div class="unit-progress"><div class="meter" aria-hidden="true"><span style="width:${pct}%"></span></div><span>${n} of ${ids.length} steps ticked</span></div>
+      ${notice}
+    </div>
+    ${u.lessons.map(lessonHtml).join("")}
+    ${nextHtml}
+    ${prev ? `<p style="margin-top:20px"><a href="#${prev.id}">← ${esc(prev.kind === "day" ? prev.short : prev.title)}</a></p>` : ""}
+    ${footer()}`;
+}
+
+function footer() {
+  return `<div class="footer"><span>Companion to <a href="${COMMUNITY_URL}" target="_blank" rel="noopener">AI Web Design &amp; Dev</a> in The Vibe Marketing Lab.</span>
+    <span class="confirm" id="reset-zone"><button class="btn-link" data-reset="ask">Reset my progress</button></span></div>`;
+}
+
+function renderStart() {
+  const f = firstUnfinished();
+  const map = UNITS.map(u => { const ids = requiredStepsOf(u), n = countDone(ids), p = ids.length ? Math.round(n / ids.length * 100) : 0;
+    return `<span class="${p === 100 ? "done" : p > 0 ? "part" : ""}" style="--p:${p}%" title="${esc(u.short)}: ${p}%"></span>`; }).join("");
+  const started = UNITS.some(u => unitState(u) !== "todo");
+  $("#page").innerHTML = `
+    <div class="hero">
+      <span class="eyebrow">Course companion</span>
+      <h1>Your site, built in 7 days. Then built to be found.</h1>
+      <p>This page walks you through the course one step at a time. Watch the lesson, do the steps, tick them off. In launch week you go from nothing to your own site, planned, designed and running on your phone. After that, three stages put in your real content, get it ready for Google, and launch it on your domain.</p>
+      <div>
+        <div class="route-map" aria-label="Your progress across the 7 launch days and 3 stages">${map}</div>
+        <div class="route-map-legend"><span>Launch week: days 1 to 7</span><span>Build, Rank, Ship</span></div>
+      </div>
+      <div class="next-row">
+        ${f ? `<a class="btn btn-primary" href="#${f.id}">${started ? "Pick up where you left off" : "Start Day 1"} →</a>` : `<a class="btn btn-primary" href="${COMMUNITY_URL}" target="_blank" rel="noopener">Share your live site ↗</a>`}
+      </div>
+    </div>
+    <div class="start-grid">
+      <div class="start-card">
+        <h3>Before Day 1: get the starter kit</h3>
+        <p>Download the starter kit from GitHub, open the folder in Claude Code, then type this. Claude checks your computer and installs the two design skills used in the course.</p>
+        <div class="cmd"><code>/setup</code><button class="btn-small" data-copytext="/setup">Copy</button></div>
+        <p><a href="${REPO_URL}" target="_blank" rel="noopener">Open the starter kit ↗</a></p>
+      </div>
+      <div class="start-card">
+        <h3>What you'll have at the end</h3>
+        <p>A site you own: code in GitHub, hosted on Cloudflare, planned around what your customers search, and set up for Google and AI search. You can change any page yourself.</p>
+      </div>
+    </div>
+    <div class="how">
+      <h2 style="font-size:1.3rem">How this page works</h2>
+      <ol>
+        <li>Each day has one or more lessons. Watch the lesson on Skool, then work through its steps here.</li>
+        <li>Paste the prompts into Claude Code. Claude does the typing; you check it worked.</li>
+        <li>Tick each step when you see the result it describes. Your ticks are saved, so you can stop and come back.</li>
+        <li>Later days stay open, but finish each day first. Every step assumes the ones before it are done.</li>
+      </ol>
+    </div>
+    ${footer()}`;
+}
+
+function render() {
+  const cur = currentId();
+  renderRoute(); renderOverall();
+  if (cur === "start") renderStart(); else renderUnit(unitById[cur]);
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-tick]");
+  if (t) {
+    e.preventDefault();
+    const id = t.dataset.tick;
+    const unitBefore = UNITS.find(u => stepsOf(u).includes(id));
+    const wasDone = unitBefore && unitState(unitBefore) === "done";
+    done[id] = !done[id];
+    if (!done[id]) delete done[id];
+    const li = document.querySelector(`.step[data-step="${CSS.escape(id)}"]`);
+    if (li) { li.classList.toggle("is-done", !!done[id]); li.querySelector(".tick").setAttribute("aria-checked", done[id] ? "true" : "false"); }
+    scheduleSave();
+    const keep = window.scrollY;
+    setTimeout(() => { render(); window.scrollTo(0, keep); const b = document.querySelector(`.step[data-step="${CSS.escape(id)}"] .tick`); if (b) b.focus({ preventScroll: true }); }, 340);
+    if (unitBefore && !wasDone && unitState(unitBefore) === "done") toast(unitBefore.kind === "day" ? `${unitBefore.short} done.` : `${unitBefore.title} stage done.`);
+    return;
+  }
+  const c = e.target.closest("[data-copy]");
+  if (c) { const s = UNITS.flatMap(u => u.lessons.flatMap(l => l.steps)).find(x => x.id === c.dataset.copy); if (s) copyText(s.prompt); return; }
+  const ct = e.target.closest("[data-copytext]");
+  if (ct) { copyText(ct.dataset.copytext); return; }
+  const x = e.target.closest("[data-expand]");
+  if (x) { const box = document.getElementById("pr-" + x.dataset.expand); const open = box.classList.toggle("collapsed") === false; x.textContent = open ? "Show less" : "Show all"; x.setAttribute("aria-expanded", open); return; }
+  const j = e.target.closest("[data-jump]");
+  if (j) { const el = document.querySelector(".step:not(.is-done)"); if (el) { el.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" }); el.querySelector(".tick").focus({ preventScroll: true }); } return; }
+  const r = e.target.closest("[data-reset]");
+  if (r) {
+    const zone = document.getElementById("reset-zone");
+    if (r.dataset.reset === "ask") { zone.innerHTML = `<span>Untick every step on every day?</span><button class="btn-small" data-reset="yes">Yes, reset</button><button class="btn-small" data-reset="no">Cancel</button>`; }
+    else if (r.dataset.reset === "yes") { done = {}; scheduleSave(); render(); toast("Progress reset."); }
+    else render();
+    return;
+  }
+});
+$("#route-toggle").addEventListener("click", () => {
+  const r = $("#route"), open = r.dataset.open !== "true";
+  r.dataset.open = open; $("#route-toggle").setAttribute("aria-expanded", open);
+});
+window.addEventListener("hashchange", () => { $("#route").dataset.open = "false"; $("#route-toggle").setAttribute("aria-expanded", "false"); render(); window.scrollTo(0, 0); });
+
+setSave("loading");
+connect();
+</script>
